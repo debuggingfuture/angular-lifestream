@@ -1,5 +1,3 @@
-console.log('hello world');
-
 require(['angular'], function(angular) {
 
   // $("#lifestream").lifestream({

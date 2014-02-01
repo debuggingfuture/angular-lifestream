@@ -12,6 +12,14 @@
     padding-left: 0px;
   }
 
+  .lifestream-placeholder{
+    height:20%
+  }
+
+  .lifestream-placeholder .spinner-placeholder{
+    height:100%
+  }
+
   .lifestream-light-theme{
     color:black;
   }
@@ -34,7 +42,7 @@
     background-color: black;
     /*border: 1px solid white;*/
 
-        -moz-box-shadow:    3px 3px 3px 2px #ccc;
+    -moz-box-shadow:    3px 3px 3px 2px #ccc;
     -webkit-box-shadow: 3px 3px 3px 2px #ccc;
     box-shadow:         3px 3px 3px 2px #ccc;
   }
@@ -45,6 +53,7 @@
     line-height: 1.2em;
     padding: 5px 3px 5px 25px;
     margin-right:10px;
+        margin-bottom:10px;
     /*width -5px compensate*/
     /*need wrapper box for the shadow*/
     background-repeat: no-repeat;

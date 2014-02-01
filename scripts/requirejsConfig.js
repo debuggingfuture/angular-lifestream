@@ -8,8 +8,10 @@ var require={
         "angular-cookies": "../bower_components/angular-cookies/angular-cookies",
         "angular-mocks": "../bower_components/angular-mocks/angular-mocks",
         "angular-resource": "../bower_components/angular-resource/angular-resource",
+        "angular-sanitize":"../bower_components/angular-sanitize/angular-sanitize",
         "angular-lifestream":"angular-lifestream",
-        "angular-lifestream-service":"angular-lifestream-service"
+        "angular-lifestream-service":"angular-lifestream-service",
+        "spin-js":"../bower_components/spin.js/spin"
     },
     "shim": {
         "angular": {

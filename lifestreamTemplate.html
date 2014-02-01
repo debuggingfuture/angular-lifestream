@@ -1,15 +1,26 @@
-<div class=" lifestream lifestream-light-theme container-fluid">
+<div class=" lifestream container-fluid" ng-class="lifestreamConfig.theme">
     <ul class="row">
-        <li  ng-hide="!atoms.length" ng-repeat="atom in atoms" class="atom col-xs-10 col-sm-5 col-md-3 lifestream-twitter">{{atom.content}}</li>
+        <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: lifestreamConfig.limit" class="atom col-xs-10 col-sm-5 col-md-3" ng-class="item | serviceClassFilter" 
+        ng-include="item | serviceTemplateFilter"></li>
+        <li  ng-show="!items.length" class="atom col-xs-10 lifestream-placeholder" ><div class="spinner-placeholder"></div></li>
     </ul>
 </div>
 
 
-<div class=" lifestream lifestream-dark-theme container-fluid">
-    {{scope}}
-    <ul class="row">
-        <li class="atom col-xs-12 col-sm-5 lifestream-twitter">The Hackathon dedicated to Hong Kong&#39;s Open Government Data Portal. Even if you&#39;re not a "coder", don&#39;t let... http://fb.me/16LXq9GPU</li>
-        <li class="atom col-xs-12 col-sm-5">"The product of a hackathon isn&#39;t running code. It&#39;s the social capital developed among the people” @cshirky http://youtu.be/aXQb-yhq... #g0v</li>
-        <li class="atom col-xs-12 col-sm-5">Join the Hong Kong Women Who Code meetup on January 27th! https://www.facebook.com...</li>
-    </ul>
-</div>
+<script type="text/ng-template" id="default-template">
+<p ng-bind-html="item.context.content"></p> <small><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view original</a></small>
+</script>
+
+<!-- how to conrol scope here? in ng-include -->
+<script type="text/ng-template" id="twitter-template">
+<p ng-bind-html="item.context.tweet"></p> <small><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view on Twitter</a></small>
+</script>
+
+<script type="text/ng-template" id="facebook_page-template">
+post on wall <a href="${link}">{{item.context.title}}</a>
+</script>
+
+
+<script type="text/ng-template" id="github_org-template">
+<p ng-bind-html="item.context.content"></p>
+</script>
