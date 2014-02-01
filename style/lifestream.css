@@ -1,0 +1,66 @@
+/*.atom{
+  background-color: rgba(86,61,124,.15);
+  border: 1px solid rgba(86,61,124,.2);
+
+  }*/
+
+  .lifestream {
+    font: 16px/100% "AftasansRegular", Helvetica, Arial, sans-serif;
+
+  }
+  .lifestream ul {
+    padding-left: 0px;
+  }
+
+  .lifestream-light-theme{
+    color:black;
+  }
+  .lifestream-light-theme .atom{
+    background-color: white;
+    /*border: 1px solid black;*/
+
+    -moz-box-shadow:    3px 3px 3px 2px #ccc;
+    -webkit-box-shadow: 3px 3px 3px 2px #ccc;
+    box-shadow:         3px 3px 3px 2px #ccc;
+  }
+  .lifestream-dark-theme{
+    /*color: #f6dd97;*/
+    /*color: white;*/
+    color: #d4d4d4;
+    text-decoration: none;
+
+  }
+  .lifestream-dark-theme .atom{
+    background-color: black;
+    /*border: 1px solid white;*/
+
+        -moz-box-shadow:    3px 3px 3px 2px #ccc;
+    -webkit-box-shadow: 3px 3px 3px 2px #ccc;
+    box-shadow:         3px 3px 3px 2px #ccc;
+  }
+
+
+
+  .lifestream li {
+    line-height: 1.2em;
+    padding: 5px 3px 5px 25px;
+    margin-right:10px;
+    /*width -5px compensate*/
+    /*need wrapper box for the shadow*/
+    background-repeat: no-repeat;
+    background-position: left center;
+
+    list-style-type: none;
+  }
+
+
+  #lifestream ul {
+    margin: 0;
+    padding: 0;
+  }
+  #lifestream li {
+    line-height: 1.2em;
+    padding: 5px 3px 5px 25px;
+    background-repeat: no-repeat;
+    background-position: left center;
+  }
