@@ -1,7 +1,10 @@
-This is a angular directive for social feeds based on jquery-lifestream by christianv
+This is a angular directive for social feeds based on [jquery-lifestream](christianv.github.io/jquery-lifestream/) by @christianv
 
 
 Features
+to show a feed from different social networks in your website like this
+![angular-lifestream](https://trello-attachments.s3.amazonaws.com/52d21509103bc54a16485cb5/52d25a1f633b3f7556f4f38f/43cf5580e615fd441df21e69d4d1860c/upload_2014-02-01_at_10.47.10_pm.png)
+
 - Support x social networks with (ideally easy) plug-in structure
 - Responsive grid layout
 - Default light / Dark theme
@@ -50,6 +53,9 @@ Meanwhile need to handle requirejs dependency in this case
 - Customized Service template
 Use config to register angularjs template by service key, when exists will override
 - Customized CSS for each service
+
+##Example
+fire up the server on example.html with anything like `python -mSimpleHTTPServer`
 
 ##Supported Social Network Plugins:
 [Twitter]
