@@ -1,13 +1,13 @@
 {
-  "name": "package",
-  "version": "0.0.0",
+  "name": "angular-lifestream",
+  "version": "0.1.0",
   "dependencies": {
+    "angular": "*",
     "angular-resource": "~1.0.7",
     "angular-cookies": "~1.0.7",
     "angular-sanitize": "~1.0.7",
     "angular-bootstrap": "*",
     "angular-animate": "*",
-    "angular": "*",
     "angular-route": "*",
     "spin.js":"*"
   },
