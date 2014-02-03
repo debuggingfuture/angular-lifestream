@@ -6,7 +6,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
     // };
     // ServiceFeed.prototype = Object.create(abstractServiceFeed.prototype);
     // ServiceFeed.constructor = ServiceFeed;
-
     var ServiceFeed= abstractServiceFeed.factory();
 
     var charEscapedByService = [{
@@ -110,9 +109,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
                 "url": 'http://twitter.com/' + this._config.user
             });
         }
-
-        console.log("twitter loaded " + items.length);
-
         return output;
     };
 

@@ -32,11 +32,6 @@ var require={
                 "angular"
             ]
         }
-        // ,
-        // "lifestream-github_org":{
-        //     "deps":["jquery-lifestream"]
-        // }
     },
     "baseUrl": "scripts"
-//why scripts not scripts?
 };

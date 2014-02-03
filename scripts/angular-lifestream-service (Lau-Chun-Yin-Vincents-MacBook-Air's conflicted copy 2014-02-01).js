@@ -98,9 +98,6 @@ define(
 
                         // Call the feed with a config object and finished callback
                         var promise = _service.feeds[config.service](config).promise;
-
-                        // feedPromises[config.service] =promise;
-                        //use array 
                         feedPromises.push(promise);
                     }
 

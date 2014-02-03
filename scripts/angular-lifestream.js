@@ -48,7 +48,7 @@ define(['angular', 'angular-sanitize', 'angular-lifestream-service', 'spin-js'],
         //TODO settings.classname
       };
     })
-    .filter('serviceTemplateFilter', function($templateCache) {
+      .filter('serviceTemplateFilter', function($templateCache) {
       return function(item) {
         var serviceTemplateName = item.config.service + '-' + 'template';
         if (!$templateCache.get(serviceTemplateName)) {

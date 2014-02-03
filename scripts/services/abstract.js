@@ -2,21 +2,22 @@
  define([], function() {
 
    //need the service
+   var self;
    ServiceFeed = function(service,config) {
     this._service = service;
     this._config = config;
     this.init();
+    self = this;
    };
    ServiceFeed.prototype.init = function() {
 
    };
    ServiceFeed.prototype.getYqlUrl = function() {
-    console.log('getYqlUrl init');
      throw new Error('ServiceFeed#getYqlUrl must be overridden by subclass');
    };
 
    ServiceFeed.prototype.load = function() {
-     var promise = this._service.jsonpYql(this.getYqlUrl(), this.parse.bind(this));
+     var promise = self._service.jsonpYql(self.getYqlUrl(), self.parse.bind(self),self._config);
      return {
        "promise": promise
      };

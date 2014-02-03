@@ -13,10 +13,9 @@ define(['services/abstract'], function(abstractServiceFeed) {
                   'from json where url="https://api.github.com/orgs/' +
                   this._config.user + '/events"';
       };
-      // var filter = config.service.github_org.filter; 
-      var filter = [];
 
-      //TODO don't use $intepolate here
+
+      //TODO don't use $intepolate here, use template
       //quick hack: expose from _service
       var parseGithubStatus = function(status, $interpolate) {
 
@@ -48,6 +47,8 @@ define(['services/abstract'], function(abstractServiceFeed) {
                   j;
 
             //TODO study input
+                  // var filter = this._config.filter || []; 
+      var filter = [];
 
             //TODO use org as alias now
             if (!filter.length) {
@@ -61,8 +62,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
                   if (filter) {
                         if (filter.length) {
                               if (filter.indexOf(status.type) == -1) {
-                                    console.log('skip');
-                                    console.log(status);
                                     continue;
                               }
                         }
