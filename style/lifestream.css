@@ -79,24 +79,24 @@
     background-repeat: no-repeat;
     background-position: left center;
   }
-.lifestream .publisher{
-color: #999;
-}
-.lifestream li .media{
+  .lifestream .publisher{
+    color: #999;
+  }
+  .lifestream li .media{
   }
 
-.lifestream .content{
-  /*font-family:Georgia, 'Times New Roman', serif;*/
-  
-}
+  .lifestream .content{
+    /*font-family:Georgia, 'Times New Roman', serif;*/
+    
+  }
 
-.lifestream .publisher-container{
-  font-family:'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.5em;
-}
+  .lifestream .publisher-container{
+    font-family:'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5em;
+  }
 
   .lifestream li .media img{
-  width:auto;
-  display: block;
-  max-width: 100%
+    width:auto;
+    display: block;
+    max-width: 100%
   }
