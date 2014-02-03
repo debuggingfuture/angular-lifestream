@@ -1,7 +1,7 @@
-This is a angular directive for social feeds based on [jquery-lifestream](christianv.github.io/jquery-lifestream/) by @christianv
+This is a angular directive for social feeds based on [jquery-lifestream](http://christianv.github.io/jquery-lifestream/) by @christianv
 
 
-Features
+##Features
 to show a feed from different social networks in your website like this
 ![angular-lifestream](https://trello-attachments.s3.amazonaws.com/52d21509103bc54a16485cb5/52d25a1f633b3f7556f4f38f/43cf5580e615fd441df21e69d4d1860c/upload_2014-02-01_at_10.47.10_pm.png)
 
@@ -26,6 +26,9 @@ in this way to extend only need to use angular.module('angular-lifestream') to s
 Meanwhile need to handle requirejs dependency in this case
 +ve load only necessary files
 -ve troublesome 
+
+Passportjs : prototypical,
+even different github architecture
 
 ##to onboard new plugin
 - add yql if missing 
@@ -58,7 +61,9 @@ Use config to register angularjs template by service key, when exists will overr
 fire up the server on example.html with anything like `python -mSimpleHTTPServer`
 
 ##Supported Social Network Plugins:
-[Twitter]
-[Github - Organization] 
-[Facebook page]
+- [Twitter]
+- [Github - Organization] 
+- [Facebook page]
 WIP - [Facebook group]  https://graph.facebook.com/195466193802264
+
+##This directive is originally built to serve [code4hk's website](https://github.com/gilbertwat/site/)

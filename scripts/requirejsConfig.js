@@ -26,6 +26,11 @@ var require={
             "deps": [
                 "angular"
             ]
+        },
+        "angular-sanitize":{
+              "deps": [
+                "angular"
+            ]
         }
         // ,
         // "lifestream-github_org":{

@@ -24,7 +24,7 @@ define(
           limit: 15,
           // An array of feed items which you want to use
           list: [],
-          theme:"lifestream-light-theme"
+          theme: "lifestream-light-theme"
         }, config);
         _service.itemsettings = _service.settings;
         //TODO extend
@@ -185,16 +185,19 @@ define(
         //         "posted": '{{html tweet}}'
         //     },
         //     config.template);
-        var jsonpCallbackName = 'jlsTwitterCallback' +
-          config.user.replace(/[^a-zA-Z0-9]+/g, ''),
-
 
           //Twitter got some char encoded e.g. #39
 
-          charEscapedByService = [{
+          var charEscapedByService = [{
             "escaped": "&#39;",
             "unescaped": "\'"
-          }];
+          }],
+          twitterSize = ['thumb','large'],
+          parseMediaUrl = function(status) {
+            if((status.user.entities || {}).media){
+              return status.user.entities.media.replace(/https*:(.*):(.*)$/,'$1');
+            }
+          },
 
 
         /**
@@ -265,7 +268,12 @@ define(
               "date": new Date(status.created_at * 1000), // unix time
               "config": config,
               "context": {
+                "publisher":{
+                  "name":status.user.name,
+                  "screen_name": status.user.screen_name,
+                  },
                 "tweet": linkify(status.text),
+                "media":parseMediaUrl(status),
                 "complete_url": 'http://twitter.com/' + config.user +
                   "/status/" + status.id_str
               },
@@ -277,11 +285,10 @@ define(
 
           return output;
         };
-        //TODO didnt use the customized name. anyway to use that in angular?
 
-        var promise = _service.jsonpYql('USE ' +
-          '"http://arminrosu.github.io/twitter-open-data-table/table.xml" ' +
-          'AS twitter; SELECT * FROM twitter WHERE screen_name = "' +
+        var tableUrl = 'https://raw.github.com/vincentlaucy/twitter-open-data-table/master/table.xml';
+        var promise = _service.jsonpYql('USE "' + tableUrl +
+          '" AS twitter; SELECT * FROM twitter WHERE screen_name = "' +
           config.user + '"', parseTwitter);
         return {
           "promise": promise
@@ -293,7 +300,7 @@ define(
       _service.feeds.github_org = function(config) {
 
         //TODO running fx vs static config
-        config.customServiceClass =  config.customServiceClass || "lifestream-github";
+        config.customServiceClass = config.customServiceClass || "lifestream-github";
 
         // var template = $.extend({},
         //   {
@@ -351,7 +358,7 @@ define(
           if (status.type === 'CreateEvent' &&
             status.payload.ref_type === 'repository') {
 
-            return $interpolate('{{actor.login}} created repository ' +
+            return $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
               '<a href="http://github.com/' +
               '{{repo.name}}">{{repo.name}}</a>')(status);
           } else if (status.type === 'CreateEvent' &&

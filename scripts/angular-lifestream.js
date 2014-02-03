@@ -77,7 +77,6 @@ define(['angular', 'angular-sanitize', 'angular-lifestream-service', 'spin-js'],
           },
            {
             service: "twitter",
-
             user: "code4hk"
           },
            {

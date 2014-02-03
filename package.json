@@ -1,0 +1,26 @@
+{
+  "name": "angular-lifestream",
+  "version": "0.1.0",
+  "description": "angular-lifestream",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vincentlaucy/angular-lifestream.git"
+  },
+  "author": "Vincent <lauchunyin@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-livereload": "~0.3.1",
+    "gulp": "~3.5.0",
+    "gulp-util": "~2.2.13",
+    "gulp-watch": "~0.5.0",
+    "gulp-uglify": "~0.2.0",
+    "tiny-lr": "~0.0.5"
+  },
+  "bugs": {
+    "url": "https://github.com/vincentlaucy/angular-lifestream/issues"
+  },
+  "main": "scripts/angular-lifestream.js"
+}

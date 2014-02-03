@@ -8,12 +8,18 @@
 
 
 <script type="text/ng-template" id="default-template">
-<p ng-bind-html="item.context.content"></p> <small><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view original</a></small>
+<p ng-bind-html="item.context.content"></p> <small class="view_original"><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view original</a></small>
 </script>
 
 <!-- how to conrol scope here? in ng-include -->
 <script type="text/ng-template" id="twitter-template">
-<p ng-bind-html="item.context.tweet"></p> <small><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view on Twitter</a></small>
+<div class="publisher-container"><strong>{{item.context.publisher.name}}</strong> <span class="publisher">@{{item.context.publisher.screen_name}}</span></div>
+<p class="content" ng-bind-html="item.context.tweet"></p> 
+<div class="media"><a ng-href="{{item.context.media}}:large">
+<img  ng-show="item.context.media" ng-src="{{item.context.media}}"></img></a></div>
+<small class="view_original">
+<a target="_blank" ng-href="{{item.context.complete_url}}">
+ >>view on Twitter</a></small>
 </script>
 
 <script type="text/ng-template" id="facebook_page-template">
