@@ -1,11 +1,10 @@
-<div class=" lifestream container-fluid" ng-class="lifestreamConfig.theme">
-    <ul class="row">
-        <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: lifestreamConfig.limit" class="atom col-xs-10 col-sm-5 col-md-3" ng-class="item | serviceClassFilter" 
+<div class="lifestream container-fluid" ng-class="config.theme">
+    <ul class="row" id="lifestream-container">
+        <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: config.limit" class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
         ng-include="item | serviceTemplateFilter"></li>
         <li  ng-show="!items.length" class="atom col-xs-10 lifestream-placeholder" ><div class="spinner-placeholder"></div></li>
     </ul>
 </div>
-
 
 <script type="text/ng-template" id="default-template">
 <p ng-bind-html="item.context.content"></p> <small class="view_original"><a target="_blank" ng-href="{{item.context.complete_url}}"> >>view original</a></small>

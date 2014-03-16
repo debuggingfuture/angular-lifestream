@@ -1,17 +1,19 @@
 console.log('init requirejs config');
-var require={
-    "map": {
-    },
+var require = {
+    "map": {},
     "paths": {
         "angular": "../bower_components/angular/angular",
-        "underscore": "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min",
+        "angular-route": "../bower_components/angular-route/angular-route",
         "angular-cookies": "../bower_components/angular-cookies/angular-cookies",
-        "angular-mocks": "../bower_components/angular-mocks/angular-mocks",
         "angular-resource": "../bower_components/angular-resource/angular-resource",
-        "angular-sanitize":"../bower_components/angular-sanitize/angular-sanitize",
-        "angular-lifestream":"angular-lifestream",
-        "angular-lifestream-service":"angular-lifestream-service",
-        "spin-js":"../bower_components/spin.js/spin"
+        "angular-animate":"../bower_components/angular-animate/angular-animate",
+        "angular-sanitize": "../bower_components/angular-sanitize/angular-sanitize",
+        "angular-lifestream": "angular-lifestream",
+        "angular-lifestream-service": "angular-lifestream-service",
+        "spin-js": "../bower_components/spin.js/spin",
+        "angular-lifestream-templates":"templates",
+        "angular-shim":"angular-shim",
+        "masonry":"../bower_components/masonry/dist/masonry.pkgd"
     },
     "shim": {
         "angular": {
@@ -24,14 +26,38 @@ var require={
         },
         "angular-route": {
             "deps": [
+                "angular","angular-animate"
+            ]
+        },
+        "angular-sanitize": {
+            "deps": [
                 "angular"
             ]
         },
-        "angular-sanitize":{
-              "deps": [
-                "angular"
+        "angular-animate":{
+            "deps":[
+            // "angular-route"
+            "angular"
             ]
-        }
+        },
+        "angular-lifestream-templates":{
+            "deps":[
+            "angular"
+            ]
+        },
+        "masonry":{
+            "exports":"Masonry"
+        },
+        // "angular-masonry":{
+        //     "deps":[
+        //     "angular","masonry"
+        //     //temp
+        //     ]
+        // }
     },
     "baseUrl": "scripts"
 };
+
+if (typeof(module) != 'undefined') {
+    module.exports = require;
+}

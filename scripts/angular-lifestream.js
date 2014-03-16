@@ -1,4 +1,4 @@
-define(['angular', 'angular-sanitize', 'angular-lifestream-service', 'spin-js'], function(angular, ngSanitize, angularLifestreamService, Spinner) {
+define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifestream-templates', 'spin-js', 'masonry'], function(angular, ngRoute, angularLifestreamService, angularLifestreamTemplates, Spinner, Masonry) {
 
   //TODO For non-amd
   // (function(window, angular, undefined) {
@@ -31,82 +31,96 @@ define(['angular', 'angular-sanitize', 'angular-lifestream-service', 'spin-js'],
 
 
 
-  var app = angular.module('angular-lifestream', ['ngSanitize'])
+  var app = angular.module('angular-lifestream', ["ngRoute", 'angular-lifestream-templates'])
     .config(['$provide',
       function($provide) {
-        $provide.factory('angularLifestreamService', ['$http', '$q', '$interpolate',angularLifestreamService]);
+        $provide.factory('angularLifestreamService', ['$http', '$q', '$interpolate', angularLifestreamService]);
       }
     ])
     .filter('serviceClassFilter', function() {
       return function(item) {
-        if(item.config.customServiceClass){
-          return  item.config.customServiceClass;
-        }else{
+        if (item.config.customServiceClass) {
+          return item.config.customServiceClass;
+        } else {
 
-        return 'lifestream' + '-' + item.config.service;
+          return 'lifestream' + '-' + item.config.service;
         }
         //TODO settings.classname
       };
     })
-      .filter('serviceTemplateFilter', function($templateCache) {
-      return function(item) {
-        var serviceTemplateName = item.config.service + '-' + 'template';
-        if (!$templateCache.get(serviceTemplateName)) {
-          return 'default-template';
-        } else {
-          return serviceTemplateName;
-        }
-      };
-    }, ['$templateCache'])
-    .directive('lifestream', function(angularLifestreamService) {
-      var controller = function($scope, $element) {
-        console.log(angularLifestreamService);
-        console.log('init angular lifestream');
-        $scope.items = [];
-        //no selector to select that children, use default name
-        setupSpinLoad($element[0].querySelector('.spinner-placeholder'));
-
-        //TODO spinner at bottom; end only after all feed loaded
-
-        $scope.lifestreamConfig = {
-          theme:"lifestream-light-theme",
-          list: [
-          {
-            service: "github_org",
-            user: "code4hk",
-          },
-           {
-            service: "twitter",
-            user: "code4hk"
-          },
-           {
-            service: "facebook_page",
-            user: "code4hk"
-          }]
+    .filter('serviceTemplateFilter', ['$templateCache',
+      function($templateCache) {
+        return function(item) {
+          var serviceTemplateName = item.config.service + '-' + 'template';
+          if (!$templateCache.get(serviceTemplateName)) {
+            return 'default-template';
+          } else {
+            return serviceTemplateName;
+          }
         };
+      }
+    ])
+    .directive('lifestream', ['angularLifestreamService',
+      function(angularLifestreamService) {
+        var controller = function($scope, $element, $timeout) {
+          console.log(angularLifestreamService);
+          console.log('init angular lifestream');
+          $scope.items = [];
+          //no selector to select that children, use default name
+          setupSpinLoad($element[0].querySelector('.spinner-placeholder'));
 
-        //effective config together with defaults
-        $scope.lifestreamConfig = angularLifestreamService.init($scope.lifestreamConfig);
-        //_service.itemsettings;
+          //TODO spinner at bottom; end only after all feed loaded
+          //effective config together with defaults
+          $scope.config = angularLifestreamService.init($scope.config);
+          //_service.itemsettings;
 
-        var feedPromises = angularLifestreamService.load();
-        angular.forEach(feedPromises, function(feedPromise) {
-          feedPromise.then(function(newItems) {
-            $scope.items = angularLifestreamService.finished($scope.items, newItems);
+          var container = document.querySelector('#lifestream-container');
+          var msnry = new Masonry(container, {
+            // options
+            // columnWidth: 1200,
+            itemSelector: '.lifestream-item'
           });
 
-        });
 
-      };
-      return {
-        controller: controller,
-        restrict: 'EA',
-        require: '^ngModel',
-        transclude: true,
-        templateUrl: 'lifestreamTemplate.html'
-      };
+          $scope.refresh = function() {
+            //need keep refresh?
+
+            console.log('masonry');
+            //ideally bind after angularjs ng-repeat render, wait until scope.$last in child scope $scope.$$childHead, but seems resolve by timeout alone
+            $timeout(function() {
+            //better to use .addItems()?; to preprend at the back
+              msnry.reloadItems();
+              msnry.layout();
+              console.log('masonry layout');
+            });
+            // }
+
+          };
+          var feedPromises = angularLifestreamService.load();
+          angular.forEach(feedPromises, function(feedPromise) {
+            feedPromise.then(function(newItems) {
+              $scope.items = angularLifestreamService.finished($scope.items, newItems);
+
+              $scope.refresh();
+
+            });
+
+          });
+
+        };
+        return {
+          controller: controller,
+          restrict: 'EA',
+          require: '^ngModel',
+          transclude: true,
+          scope: {
+            "config": "=config"
+          },
+          templateUrl: 'lifestreamTemplate.html'
+        };
 
 
-    }, ['angularLifestreamService']);
+      }
+    ]);
 
 });

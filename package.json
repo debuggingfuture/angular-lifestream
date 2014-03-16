@@ -17,7 +17,10 @@
     "gulp-util": "~2.2.13",
     "gulp-watch": "~0.5.0",
     "gulp-uglify": "~0.2.0",
-    "tiny-lr": "~0.0.5"
+    "tiny-lr": "~0.0.5",
+    "gulp-requirejs":"*",
+    "gulp-angular-templatecache":"*",
+    "requirejs":"*"
   },
   "bugs": {
     "url": "https://github.com/vincentlaucy/angular-lifestream/issues"

@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "dependencies": {
     "angular": "*",
-    "angular-resource": "~1.0.7",
+    "angular-resource": "*",
     "angular-cookies": "~1.0.7",
     "angular-sanitize": "~1.0.7",
     "angular-bootstrap": "*",
     "angular-animate": "*",
     "angular-route": "*",
-    "spin.js":"*"
+    "spin.js": "*"
   },
   "devDependencies": {},
   "resolutions": {
-    "angular": ">=1"
+    "angular": ">=1.2.14"
   }
 }

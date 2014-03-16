@@ -29,16 +29,11 @@ define(
       _service.feedsToInclude = ['twitter', 'facebook_page', 'github_org'];
       var argOffset = 1;
 
-      var j = 0;
       //TODO length of arguments check 
-      console.log('arguments');
       console.log(_services_const);
-      for (var i = 0; i < _service.feedsToInclude.length; i++) {
+      for (var i = 0; i < _service.feedsToInclude.length && argOffset+i< _services_const.length; i++) {
         _service.feeds[_service.feedsToInclude[i]] = _services_const[argOffset + i];
-        j++;
       };
-
-
 
       _service.init = function(config) {
         _service.settings = angular.extend({

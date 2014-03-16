@@ -100,3 +100,10 @@
     display: block;
     max-width: 100%
   }
+
+
+
+/*masonry*/
+
+  .masonry-brick { width: 25%; }
+.masonry-brick.w2 { width: 50%; }
