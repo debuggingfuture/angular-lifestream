@@ -1,7 +1,7 @@
 require(['angular', 'masonry', 'angular-route', 'angular-animate', 'angular-sanitize', 'angular-lifestream'], function(angular, Masonry) {
     console.log('bootstrap site');
     var app = angular.module('site', ["ngRoute", 'ngAnimate', 'ngSanitize', "angular-lifestream"]);
-
+//ngSanitize is important
     app.controller('lifestreamCtrl', ['$scope',
         function($scope) {
             $scope.lifestreamConfig = {
