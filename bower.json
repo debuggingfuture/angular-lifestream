@@ -1,6 +1,14 @@
 {
   "name": "angular-lifestream",
   "version": "0.1.0",
+  "ignore": [
+    "bower_components",
+    ".*",
+    "scripts",
+    "style",
+    "tests",
+    "node_modules"
+  ],
   "dependencies": {
     "angular": "*",
     "angular-resource": "*",
