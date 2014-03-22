@@ -26,8 +26,12 @@ var concatJs = function() {
     //scripts there but failed to load module
 
     // rjsConfig.dir='dist/scripts';
-    // rjsConfig.wrap= true;
-    rjsConfig.optimize='none',
+    rjsConfig.wrap=  {
+        startFile: 'scripts/start.frag',
+        endFile: 'scripts/end.frag'
+    };
+    // rjsConfig.wrap=true;
+    rjsConfig.optimize='none';
 
     // rjsConfig.modules=[{name:"almond",include:['angular-lifestream-templates','angular-lifestream'],
     // exclude:['angular','angular-route','angular-cookies']}
@@ -36,7 +40,7 @@ var concatJs = function() {
     rjsConfig.name="almond";
     rjsConfig.out='dist/scripts/angular-lifestream.min.js';
     rjsConfig.include=['angular-lifestream-templates','angular-lifestream','angular-shim'];
-    rjsConfig.insertRequire= ['angular-lifestream'];
+    // rjsConfig.insertRequire= ['angular-lifestream'];
 
     //shim should stay, not the actual thing, how is that possible?
     rjsConfig.exclude=['angular','angular-route','angular-sanitize','angular-animate'];

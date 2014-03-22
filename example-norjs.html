@@ -11,9 +11,9 @@
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
   <script src="bower_components/angular-animate/angular-animate.js"></script>
-  <script src="/dist/scripts/angular-lifestream.min.js"></script>
+ <script src="/dist/scripts/angular-lifestream.min.js"></script>
   <script>
-  require(["angular-lifestream"],function() {
+  // require(["angular-lifestream"],function() {
     //leak str 
 
     var app = angular.module('site', ["ngRoute","ngSanitize","angular-lifestream"]);
@@ -34,9 +34,11 @@
       };
     }]);
 
-    angular.bootstrap(document, ["site"]);
+    angular.element(document).ready(function() {
+    console.log('bootstrap');
+         angular.bootstrap(document, ['site']);
+       });
 
-  });
   
   </script>
   <div id="lifestream">&nbsp;</div>

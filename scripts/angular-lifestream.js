@@ -123,4 +123,6 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
       }
     ]);
 
+  return app;
+
 });
