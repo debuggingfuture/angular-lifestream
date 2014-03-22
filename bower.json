@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "main": "dist/scripts/angular-lifestream.js",
   "ignore": [
-    "bower_components",
+    "/bower_components",
     "*.*",
-    "scripts",
-    "style",
-    "tests",
-    "node_modules"
+    "/scripts",
+    "/style",
+    "/tests",
+    "/node_modules"
   ],
   "dependencies": {
     "angular": "*",
