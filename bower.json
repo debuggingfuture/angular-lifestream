@@ -1,9 +1,10 @@
 {
   "name": "angular-lifestream",
   "version": "0.1.0",
+  "main": "dist/scripts/angular-lifestream.js",
   "ignore": [
     "bower_components",
-    ".*",
+    "*.*",
     "scripts",
     "style",
     "tests",
