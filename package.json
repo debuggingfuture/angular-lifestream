@@ -20,7 +20,8 @@
     "tiny-lr": "~0.0.5",
     "gulp-requirejs":"*",
     "gulp-angular-templatecache":"*",
-    "requirejs":"*"
+    "requirejs":"*",
+        "gulp-rename":"*"
   },
   "bugs": {
     "url": "https://github.com/vincentlaucy/angular-lifestream/issues"
