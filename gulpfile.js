@@ -85,6 +85,11 @@ gulp.task('build', ['template', 'concat'], function() {
         .pipe(rename("angular-lifestream.min.js"))
         .pipe(gulp.dest('dist/scripts'));
 
+    gulp.src('style/angular-lifestream.css')
+        .pipe(rename("angular-lifestream.css"))
+        .pipe(gulp.dest('dist/style'));
+
+
 });
 
 gulp.task('concat', function(cb) {
