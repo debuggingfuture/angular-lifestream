@@ -109,7 +109,7 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
 
         };
         return {
-          controller: controller,
+          controller: ['$scope', '$element', '$timeout',controller],
           restrict: 'EA',
           require: '^ngModel',
           transclude: true,

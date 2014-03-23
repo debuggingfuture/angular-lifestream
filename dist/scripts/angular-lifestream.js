@@ -4471,7 +4471,7 @@ define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-ser
 
         };
         return {
-          controller: controller,
+          controller: ['$scope', '$element', '$timeout',controller],
           restrict: 'EA',
           require: '^ngModel',
           transclude: true,
