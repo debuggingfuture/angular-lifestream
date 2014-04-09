@@ -66,4 +66,4 @@ fire up the server on example.html with anything like `python -mSimpleHTTPServer
 - [Facebook page]
 WIP - [Facebook group]  https://graph.facebook.com/195466193802264
 
-##This directive is originally built to serve [code4hk's website](https://github.com/gilbertwat/site/)
+##This directive is originally built to serve [code4hk's website](https://www.code4.hk)
