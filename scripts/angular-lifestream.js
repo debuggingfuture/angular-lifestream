@@ -72,7 +72,7 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
           $scope.allLoadedPromise = allLoaded.promise;
 
           $scope.allLoadedPromise.then(function(){
-            console.log('add loaded');
+            console.log('all loaded');
           })
 
 
@@ -81,8 +81,9 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
 
           var feedLoaded = function() {
             feedCounter++;
-            if(feedCounter = feedPromises.length){
-              allLoaded.resolve('abc');
+            console.log(feedCounter);
+            if(feedCounter == feedPromises.length){
+              allLoaded.resolve();
             }
           };
 
