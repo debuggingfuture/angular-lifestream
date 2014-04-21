@@ -104,6 +104,9 @@ gulp.task('reload', ['listen', 'template'], function() {
     gulp.src(['*.html', '*.css'])
         .pipe(watch())
         .pipe(livereload(server));
+
+gulp.watch(['*.html'], ['template']);
+
 });
 
 gulp.task('listen', function(next) {

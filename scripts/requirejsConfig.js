@@ -13,7 +13,8 @@ var require = {
         "spin-js": "../bower_components/spin.js/spin",
         "angular-lifestream-templates":"templates",
         "angular-shim":"angular-shim",
-        "masonry":"../bower_components/masonry/dist/masonry.pkgd"
+        "masonry":"../bower_components/masonry/dist/masonry.pkgd",
+        "angular-busy":"../bower_components/angular-busy/dist/angular-busy"
     },
     "shim": {
         "angular": {
@@ -48,6 +49,9 @@ var require = {
         "masonry":{
             "exports":"Masonry"
         },
+        "angular-busy":{
+            "exports":"busy"
+        }
         // "angular-masonry":{
         //     "deps":[
         //     "angular","masonry"
