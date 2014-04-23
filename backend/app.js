@@ -11,6 +11,8 @@ app.get('/', function(req, res) {
     res.send('hello world');
 });
 
+var PORT = 3000;
+
 var config = require('config.json');
 
 var fbConfig = config["fbgroup"];
@@ -76,4 +78,4 @@ app.get('/fbgroup', function(req, res) {
 });
 
 
-app.listen(3000);
+app.listen(PORT);
