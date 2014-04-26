@@ -1,5 +1,3 @@
-
-
 <div class="lifestream container-fluid" ng-class="config.theme">
     <ul class="row" id="lifestream-container">
         <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: config.limit" class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
@@ -28,7 +26,18 @@
 post on wall <a href="${link}">{{item.context.title}}</a>
 </script>
 
+<script type="text/ng-template" id="facebook_group-template">
+<div class="publisher-container"><strong>{{item.context.publisher}}</strong> <small> posted in <a target="_blank" ng-href="{{item.groupUrl}}">FB Group</a> </small> </div>
+{{item.context.content}}
+<div ng-if="item.context.thumbnail"  class="media">
+<img  ng-src="{{item.context.thumbnail}}"></div>
+<small class="view_original">
+<a target="_blank" ng-href="{{item.url}}">
+>>view on Facebook</a></small>
+</script>
+
 
 <script type="text/ng-template" id="github_org-template">
 <p ng-bind-html="item.context.content"></p>
 </script>
+

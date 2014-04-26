@@ -6,7 +6,10 @@ define(['services/abstract'], function(abstractServiceFeed) {
     // };
     // ServiceFeed.prototype = Object.create(abstractServiceFeed.prototype);
     // ServiceFeed.constructor = ServiceFeed;
-    var ServiceFeed= abstractServiceFeed.factory();
+    var ServiceFeed = abstractServiceFeed.factory();
+    ServiceFeed.prototype.init = function() {
+        this._config.isYql = true;
+    };
 
     var charEscapedByService = [{
         "escaped": "&#39;",
@@ -86,7 +89,8 @@ define(['services/abstract'], function(abstractServiceFeed) {
      * @return {Object[]} Array of Twitter status messages.
      */
     ServiceFeed.prototype.parse = function(query) {
-        var items = query.results.items;
+        var data = abstractServiceFeed.parseYqlRes(query);
+        var items = data.results.items;
         var output = [],
             i = 0,
             j = items.length;

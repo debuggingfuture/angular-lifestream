@@ -5,6 +5,7 @@ define(['services/abstract'], function(abstractServiceFeed) {
       ServiceFeed.prototype.init = function() {
             console.log('github init');
             this._config.customServiceClass = this._config.customServiceClass || "lifestream-github";
+            this._config.isYql = true;
       };
 
       ServiceFeed.prototype.getYqlUrl = function() {
@@ -13,7 +14,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
                   'from json where url="https://api.github.com/orgs/' +
                   this._config.user + '/events"';
       };
-
 
       //TODO don't use $intepolate here, use template
       //quick hack: expose from _service
@@ -36,20 +36,21 @@ define(['services/abstract'], function(abstractServiceFeed) {
 
 
       /**
-       * Parse the input from twitter
        * @private
        * @param  {Object[]} items
        * @return {Object[]} Array of Twitter status messages.
        */
       ServiceFeed.prototype.parse = function(query) {
-            var items = query.results.json;
+            var data = abstractServiceFeed.parseYqlRes(query);
+            var items = data.results.json;
+            console.log('github loaded count:' + items.length);
             var output = [],
                   i = 0,
                   j;
 
             //TODO study input
-                  // var filter = this._config.filter || []; 
-      var filter = [];
+            // var filter = this._config.filter || []; 
+            var filter = [];
 
             //TODO use org as alias now
             if (!filter.length) {

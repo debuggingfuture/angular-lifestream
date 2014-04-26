@@ -1,9 +1,9 @@
 define(
   ["angular",
     "services/twitter",
-    "services/facebook_page",
+    "services/facebook_group",
     "services/github_org"
-  ], function(angular, Twitter, Facebook_Page, Github_Org) {
+  ], function(angular, Twitter, Facebook_Group, Github_Org) {
     //each feed as a ind services?
     var _services_const = arguments;
 
@@ -18,7 +18,6 @@ define(
         "$q": $q,
         "$interpolate": $interpolate
       };
-
       _service.feeds = _service.feeds || {};
 
 
@@ -26,7 +25,7 @@ define(
       //alternative: don't use requirejs but simple build mechanism. as never use non-build version
       //or requirejs programatically  e.g. list of names + using arguments
       //same as file name
-      _service.feedsToInclude = ['twitter', 'facebook_page', 'github_org'];
+      _service.feedsToInclude = ['twitter', 'facebook_group', 'github_org'];
       var argOffset = 1;
 
       //TODO length of arguments check 
@@ -47,7 +46,7 @@ define(
           limit: 15,
           // An array of feed items which you want to use
           list: [],
-          theme: "lifestream-light-theme"
+          theme: "lifestream-light-theme",
         }, config);
         _service.itemsettings = _service.settings;
         //TODO extend
@@ -158,11 +157,9 @@ define(
           .replace("__QUERY__", encodeURIComponent(query));
       };
 
-      _service.jsonpYql = function(yql, parsingCb, config) {
-        //TODO override config
-        var url = _service.createYqlUrl(yql) + "&callback=JSON_CALLBACK";
 
-        return $http.jsonp(url, {
+      var _doJsonp = function(url, parsingCb, config) {
+          return $http.jsonp(url, {
 
           "cache": true,
           'data': {
@@ -173,12 +170,11 @@ define(
             if (typeof parsingCb !== 'function') {
               console.log('no parsing function provided');
             }
-
-            var query = data.data.query;
-            console.log(config.service+' loaded:' + query.count);
-            if (query && query.count > 0) {
+            //TODO better normalize it
+            //TODO push this down into abstraction of yql services
+            if (data ) {
               //key under results is service specifc depending on xml, e.g. items for twitter while json for github
-              return parsingCb(query);
+              return parsingCb(data);
             } else {
               return $q.reject('no data');
             }
@@ -187,8 +183,17 @@ define(
             //TODO
             console.log(err);
           });
-
       };
+      _service.jsonpYql = function(yql, parsingCb, config) {
+        //TODO override config
+        var url = _service.createYqlUrl(yql) + "&callback=JSON_CALLBACK";
+        return _doJsonp(url, parsingCb, config);
+      };
+
+      _service.loadJsonUrl = function(url, parsingCb, config) {
+        return _doJsonp(url+'?callback=JSON_CALLBACK', parsingCb, config);
+      };
+
       return _service;
     }
     return angularLifestreamServiceFactory;

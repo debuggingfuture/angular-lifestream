@@ -13,19 +13,42 @@
 
    };
    ServiceFeed.prototype.getYqlUrl = function() {
-     throw new Error('ServiceFeed#getYqlUrl must be overridden by subclass');
+     throw new Error('ServiceFeed#getYqlUrl must be overridden by subclass if to use');
+   };
+   ServiceFeed.prototype.getJsonUrl = function() {
+     throw new Error('ServiceFeed#getJsonUrl must be overridden by subclass if to use');
    };
 
    ServiceFeed.prototype.load = function() {
-     var promise = self._service.jsonpYql(self.getYqlUrl(), self.parse.bind(self),self._config);
+
+    //TODO refactor
+    var promise=null;
+    console.log(self._config);
+    if(self._config.isYql){
+      promise = self._service.jsonpYql(self.getYqlUrl(), self.parse.bind(self),self._config);
+    }
+    else{
+      promise = self._service.loadJsonUrl(self.getJsonUrl(),self.parse.bind(self), self._config);
+    }
+
      return {
        "promise": promise
      };
    };
 
+
+      //TODO 
+      //separate parse & DOM gen
+      
+
    ServiceFeed.prototype.parse = function() {
      throw new Error('ServiceFeed#parse must be overridden by subclass');
    };
+
+   //util TODO extract
+    ServiceFeed.parseYqlRes = function(query){
+        return query.data.query;
+      }
 
 
    //factory to create ServiceFeed using this abstract feed as prototype

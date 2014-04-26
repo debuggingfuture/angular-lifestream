@@ -11,8 +11,10 @@
          service: "twitter",
          user: "code4hk"
        }, {
-         service: "facebook_page",
-         user: "code4hk"
+         service: "facebook_group",
+         user: 614373621963841,
+         jsonUrl: 'http://lifestream.dev.code4.hk/fbgroup'
+         
        }]
      };
 
