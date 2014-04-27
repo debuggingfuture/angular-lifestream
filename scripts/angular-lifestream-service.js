@@ -46,6 +46,9 @@ define(
           limit: 15,
           // An array of feed items which you want to use
           list: [],
+
+          // TODO frequency in seconds to reload all feeds Note: YQL cached for minutes so this should bigger than that
+          frequency : 60,
           theme: "lifestream-light-theme",
         }, config);
         _service.itemsettings = _service.settings;

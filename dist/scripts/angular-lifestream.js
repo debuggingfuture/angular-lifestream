@@ -428,7 +428,7 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-angular.module("angular-lifestream-templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("lifestreamTemplate.html","<div class=\"lifestream container-fluid\" ng-class=\"config.theme\">\n    <ul class=\"row\" id=\"lifestream-container\">\n        <li  ng-hide=\"!items.length\" ng-repeat=\"item in items | limitTo: config.limit\" class=\"lifestream-item atom col-xs-10 col-sm-5 col-md-3\"  ng-class=\"item | serviceClassFilter\" \n        ng-include=\"item | serviceTemplateFilter\"></li>\n        <li  ng-show=\"!items.length\" class=\"atom col-xs-10 lifestream-placeholder\" ><div class=\"spinner-placeholder\"></div></li>\n    </ul>\n</div>\n\n<script type=\"text/ng-template\" id=\"default-template\">\n<p ng-bind-html=\"item.context.content\"></p> <small class=\"view_original\"><a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\"> >>view original</a></small>\n</script>\n\n<!-- how to conrol scope here? in ng-include -->\n<script type=\"text/ng-template\" id=\"twitter-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher.name}}</strong> <span class=\"publisher\">@{{item.context.publisher.screen_name}}</span></div>\n<p class=\"content\" ng-bind-html=\"item.context.tweet\"></p> \n<div class=\"media\"><a ng-href=\"{{item.context.media}}:large\">\n<img  ng-show=\"item.context.media\" ng-src=\"{{item.context.media}}\"></img></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\">\n>>view on Twitter</a></small>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_page-template\">\npost on wall <a href=\"${link}\">{{item.context.title}}</a>\n</script>\n\n\n<script type=\"text/ng-template\" id=\"github_org-template\">\n<p ng-bind-html=\"item.context.content\"></p>\n</script>");}]);
+angular.module("angular-lifestream-templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("lifestreamTemplate.html","<div class=\"lifestream container-fluid\" ng-class=\"config.theme\">\n    <ul class=\"row\" id=\"lifestream-container\">\n        <li  ng-hide=\"!items.length\" ng-repeat=\"item in items | limitTo: config.limit\" class=\"lifestream-item atom col-xs-10 col-sm-5 col-md-3\"  ng-class=\"item | serviceClassFilter\" \n        ng-include=\"item | serviceTemplateFilter\"></li>\n    </ul>\n    <div class=\"row col-xs-10 \" cg-busy=\"{promise:allLoadedPromise,message:\'Loading\'}\"></div>\n</div>\n\n<script type=\"text/ng-template\" id=\"default-template\">\n<p ng-bind-html=\"item.context.content\"></p> <small class=\"view_original\"><a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\"> >>view original</a></small>\n</script>\n\n<!-- how to conrol scope here? in ng-include -->\n<script type=\"text/ng-template\" id=\"twitter-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher.name}}</strong> <span class=\"publisher\">@{{item.context.publisher.screen_name}}</span></div>\n<p class=\"content\" ng-bind-html=\"item.context.tweet\"></p> \n<div ng-if=\"item.context.media\" class=\"media\"><a target=\"_blank\" ng-href=\"{{item.context.media}}:large\">\n<img   ng-src=\"{{item.context.media}}\"></img></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\">\n>>view on Twitter</a></small>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_page-template\">\npost on wall <a href=\"${link}\">{{item.context.title}}</a>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_group-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher}}</strong> <small> posted in <a target=\"_blank\" ng-href=\"{{item.groupUrl}}\">FB Group</a> </small> </div>\n{{item.context.content}}\n\n\n<div ng-if=\"item.context.media\"  class=\"media\">\n<a target=\"_blank\" ng-href=\"{{item.context.media.link}}\">\n<div ng-if=\"item.context.media.link\">{{item.context.media.linkDisplayed}}</div>\n<img  ng-src=\"{{item.context.media.thumbnail}}\"></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.url}}\">\n>>view on Facebook</a></small>\n</script>\n\n\n<script type=\"text/ng-template\" id=\"github_org-template\">\n<p ng-bind-html=\"item.context.content\"></p>\n</script>\n\n");}]);
 define("angular-lifestream-templates", ["angular"], function(){});
 
  //abstract class for feed service
@@ -446,19 +446,42 @@ define("angular-lifestream-templates", ["angular"], function(){});
 
    };
    ServiceFeed.prototype.getYqlUrl = function() {
-     throw new Error('ServiceFeed#getYqlUrl must be overridden by subclass');
+     throw new Error('ServiceFeed#getYqlUrl must be overridden by subclass if to use');
+   };
+   ServiceFeed.prototype.getJsonUrl = function() {
+     throw new Error('ServiceFeed#getJsonUrl must be overridden by subclass if to use');
    };
 
    ServiceFeed.prototype.load = function() {
-     var promise = self._service.jsonpYql(self.getYqlUrl(), self.parse.bind(self),self._config);
+
+    //TODO refactor
+    var promise=null;
+    console.log(self._config);
+    if(self._config.isYql){
+      promise = self._service.jsonpYql(self.getYqlUrl(), self.parse.bind(self),self._config);
+    }
+    else{
+      promise = self._service.loadJsonUrl(self.getJsonUrl(),self.parse.bind(self), self._config);
+    }
+
      return {
        "promise": promise
      };
    };
 
+
+      //TODO 
+      //separate parse & DOM gen
+      
+
    ServiceFeed.prototype.parse = function() {
      throw new Error('ServiceFeed#parse must be overridden by subclass');
    };
+
+   //util TODO extract
+    ServiceFeed.parseYqlRes = function(query){
+        return query.data.query;
+      }
 
 
    //factory to create ServiceFeed using this abstract feed as prototype
@@ -483,7 +506,10 @@ define('services/twitter',['services/abstract'], function(abstractServiceFeed) {
     // };
     // ServiceFeed.prototype = Object.create(abstractServiceFeed.prototype);
     // ServiceFeed.constructor = ServiceFeed;
-    var ServiceFeed= abstractServiceFeed.factory();
+    var ServiceFeed = abstractServiceFeed.factory();
+    ServiceFeed.prototype.init = function() {
+        this._config.isYql = true;
+    };
 
     var charEscapedByService = [{
         "escaped": "&#39;",
@@ -563,7 +589,8 @@ define('services/twitter',['services/abstract'], function(abstractServiceFeed) {
      * @return {Object[]} Array of Twitter status messages.
      */
     ServiceFeed.prototype.parse = function(query) {
-        var items = query.results.items;
+        var data = abstractServiceFeed.parseYqlRes(query);
+        var items = data.results.items;
         var output = [],
             i = 0,
             j = items.length;
@@ -594,64 +621,90 @@ define('services/twitter',['services/abstract'], function(abstractServiceFeed) {
     return ServiceFeed;
 });
 
+define('services/facebook_group',['services/abstract'], function(abstractServiceFeed) {
 
-      // _service.feeds.facebook_page = function(config) {
+      var ServiceFeed = abstractServiceFeed.factory();
 
-      //   // var template = $.extend({}, {
-      //   //         wall_post: 'post on wall <a href="${link}">${title}</a>'
-      //   //     },
-      //   //     config.template);
-      //   // var template = {
-      //   //     wall_post: 'post on wall <a href="${link}">${title}</a>'
-      //   // };
+      ServiceFeed.prototype.init = function() {
+            this._config.customServiceClass = this._config.customServiceClass || "lifestream-facebook";
+      };
 
-      //   /**
-      //    * Parse the input from facebook
-      //    */
-      //   var parseFBPage = function(input) {
-      //     var output = [],
-      //       list, i = 0,
-      //       j;
-
-      //     if (input.query && input.query.count && input.query.count > 0) {
-      //       list = input.query.results.rss.channel.item;
-      //       j = list.length;
-      //       for (; i < j; i++) {
-      //         var item = list[i];
-      //         if ($.trim(item.title)) {
-      //           output.push({
-      //             date: new Date(item.pubDate),
-      //             config: config,
-      //             context: {
-      //               "content": item.wall_post,
-      //               "url": "",
-      //               "title": item.title
-      //             }
-      //             //$.tmpl(template.wall_post, item)
-      //           });
-      //         }
-      //       }
-      //     }
+      ServiceFeed.prototype.getJsonUrl = function() {
+            return this._config.jsonUrl;
+      };
 
 
-      //     return output;
-      //   };
+      var parseFbPost = function(post) {
+            // '<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
+            //             '<a href="http://github.com/' +
+            //             '{{repo.name}}">{{repo.name}}</a>'
+
+            //better till last word, not last char
+            var MESSAGE_CHAR_LIMIT = 250;
+            var message = post.message;
+            var messageExcerpt;
+            //better interpolate inside?
+            var content, link, linkDisplayed;
+            if (message) {
+                  content = message.length > MESSAGE_CHAR_LIMIT ? message.substr(0, MESSAGE_CHAR_LIMIT) + '...' : message;
+            }
+            //possibly story e.g. update group photo , add pictures etc
+            if (post.type === 'photo' && post.story) {
+                  content = post.story;
+            }
+            if (post.type === 'link') {
+                  link = post.link;
+                  linkDisplayed = post.name;
+            }
+            var media=null;
+
+            if(post.picture || link){
+                  media = {
+                        "thumbnail": post.picture,
+                        "link": link,
+                        "linkDisplayed": linkDisplayed
+                  }
+            }
+
+            return {
+                  "content": content,
+                  "publisher": post.from.name,
+                  "media": media
+            }
+
+      };
+
+      ServiceFeed.prototype.parse = function(query) {
+            var items = query.data.data;
+            console.log('fb loaded count:' + items.length);
+            //dirty tricks
+            var $interpolate = this._service.angular_services.$interpolate;
+
+            var output = [];
+            //TODO study input
+            // var filter = this._config.filter || []; 
+
+            var groupUrl = 'https://www.facebook.com/groups/' + this._config.user;
+            var filter = [];
+            for (var i = 0; i < items.length; i++) {
+                  var post = items[i];
+                  var postId = post.id.split('_')[1];
+                  output.push({
+                        date: new Date(post.created_time),
+                        config: this._config,
+                        context: parseFbPost(post),
+                        url: groupUrl + '/permalink/' + postId,
+                        groupUrl: groupUrl //TODO better use group alias, but can only input from user, not exists in response
+                  });
+            }
+
+            return output;
+      };
 
 
-      //   var promise = _service.jsonpYql('select * from xml where url="' +
-      //     'www.facebook.com/feeds/page.php?id=' +
-      //     config.user + '&format=rss20"', parseFBPage);
 
-      //   // Expose the template.
-      //   // We use this to check which templates are available
-      //   return {
-      //     "promise": promise
-      //   };
-
-      // };
-
-define("services/facebook_page", function(){});
-
+      return ServiceFeed;
+});
 define('services/github_org',['services/abstract'], function(abstractServiceFeed) {
 
       var ServiceFeed = abstractServiceFeed.factory();
@@ -659,6 +712,7 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
       ServiceFeed.prototype.init = function() {
             console.log('github init');
             this._config.customServiceClass = this._config.customServiceClass || "lifestream-github";
+            this._config.isYql = true;
       };
 
       ServiceFeed.prototype.getYqlUrl = function() {
@@ -668,7 +722,6 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
                   this._config.user + '/events"';
       };
 
-
       //TODO don't use $intepolate here, use template
       //quick hack: expose from _service
       var parseGithubStatus = function(status, $interpolate) {
@@ -676,42 +729,54 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
 
             if (status.type === 'CreateEvent' &&
                   status.payload.ref_type === 'repository') {
-
-                  return $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
+                  return $interpolate('<a target="_blank" href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
                         '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
             } else if (status.type === 'CreateEvent' &&
                   status.payload.ref_type === 'branch') {
-                  return $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created branch <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}">{{payload.ref}}</a> at repository ' + '<a href="http://github.com/' +
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> created branch <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}">{{payload.ref}}</a> at repository ' + '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
+            } else if (status.type === 'ForkEvent') {
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> forked repository ' +
+                        '<a href="http://github.com/' +
+                        '{{repo.name}}">{{repo.name}}</a>')(status);
+            } else if (status.type === 'PushEvent') {
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}"> {{payload.ref}}</a> at <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
             }
       };
-      //add PR event?
-
 
       /**
-       * Parse the input from twitter
        * @private
        * @param  {Object[]} items
        * @return {Object[]} Array of Twitter status messages.
        */
       ServiceFeed.prototype.parse = function(query) {
-            var items = query.results.json;
+            var data = abstractServiceFeed.parseYqlRes(query);
+            var items = data.results.json;
+            console.log('github loaded count:' + items.length);
             var output = [],
+                  aggregatedEvents = [],
                   i = 0,
                   j;
 
             //TODO study input
-                  // var filter = this._config.filter || []; 
-      var filter = [];
+            // var filter = this._config.filter || []; 
+            var filter = [];
 
             //TODO use org as alias now
             if (!filter.length) {
                   // filter = config.filter;
-                  filter = ['CreateEvent'];
+                  filter = ['CreateEvent', 'ForkEvent', 'PushEvent'];
             }
+            //aggregate events like push
+            //TODO add PR
+
+            var $interpolate = this._service.angular_services.$interpolate;
 
             j = items.length;
+
+            //originally sorted
+
             for (; i < j; i++) {
                   var status = items[i].json;
                   if (filter) {
@@ -721,16 +786,56 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
                               }
                         }
                   }
-                  var $interpolate = this._service.angular_services.$interpolate;
+
+                  var indexOflatestPushEventBySameActorRepo = function(events, eventToCompare) {
+                        for (var k = 0; k < events.length; k++) {
+                              var status = events[k].status;
+                              var isSame = (status.actor.id === eventToCompare.actor.id) && (status.repo.id === eventToCompare.repo.id);
+                              if (isSame) return k;
+                        }
+                        return -1;
+                  };
+
+
+                  //aggregate to the first(latest in time)
+                  if (status.type === 'PushEvent') {
+                        var index = indexOflatestPushEventBySameActorRepo(aggregatedEvents, status);
+                        if (index > -1) {
+                              aggregatedEvents[index].count++;
+                              continue;
+                        }
+                        //else new one, push it
+                  }
+
+                  aggregatedEvents.push({
+                        date: new Date(status.created_at),
+                        status: status,
+                        count: 1
+                  });
+            }
+
+            for (var i = 0; i < aggregatedEvents.length; i++) {
+                  var status = aggregatedEvents[i].status;
+                  status.count = aggregatedEvents[i].count;
+
                   output.push({
                         date: new Date(status.created_at),
                         config: this._config,
                         context: {
-                              "content": parseGithubStatus(status, $interpolate),
+                              "publisher": $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a>')(status),
+                              "content": parseGithubStatus(status, $interpolate)
                         },
                         url: 'https://github.com/' + this._config.user
                   });
+
             }
+
+            //after aggregate, so content can parse with variable like count
+
+            console.log(output);
+            // output
+
+
 
             return output;
       };
@@ -932,9 +1037,9 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
 define(
   'angular-lifestream-service',["angular",
     "services/twitter",
-    "services/facebook_page",
+    "services/facebook_group",
     "services/github_org"
-  ], function(angular, Twitter, Facebook_Page, Github_Org) {
+  ], function(angular, Twitter, Facebook_Group, Github_Org) {
     //each feed as a ind services?
     var _services_const = arguments;
 
@@ -949,7 +1054,6 @@ define(
         "$q": $q,
         "$interpolate": $interpolate
       };
-
       _service.feeds = _service.feeds || {};
 
 
@@ -957,7 +1061,7 @@ define(
       //alternative: don't use requirejs but simple build mechanism. as never use non-build version
       //or requirejs programatically  e.g. list of names + using arguments
       //same as file name
-      _service.feedsToInclude = ['twitter', 'facebook_page', 'github_org'];
+      _service.feedsToInclude = ['twitter', 'facebook_group', 'github_org'];
       var argOffset = 1;
 
       //TODO length of arguments check 
@@ -978,7 +1082,10 @@ define(
           limit: 15,
           // An array of feed items which you want to use
           list: [],
-          theme: "lifestream-light-theme"
+
+          // TODO frequency in seconds to reload all feeds Note: YQL cached for minutes so this should bigger than that
+          frequency : 60,
+          theme: "lifestream-light-theme",
         }, config);
         _service.itemsettings = _service.settings;
         //TODO extend
@@ -1089,11 +1196,9 @@ define(
           .replace("__QUERY__", encodeURIComponent(query));
       };
 
-      _service.jsonpYql = function(yql, parsingCb, config) {
-        //TODO override config
-        var url = _service.createYqlUrl(yql) + "&callback=JSON_CALLBACK";
 
-        return $http.jsonp(url, {
+      var _doJsonp = function(url, parsingCb, config) {
+          return $http.jsonp(url, {
 
           "cache": true,
           'data': {
@@ -1104,12 +1209,11 @@ define(
             if (typeof parsingCb !== 'function') {
               console.log('no parsing function provided');
             }
-
-            var query = data.data.query;
-            console.log(config.service+' loaded:' + query.count);
-            if (query && query.count > 0) {
+            //TODO better normalize it
+            //TODO push this down into abstraction of yql services
+            if (data ) {
               //key under results is service specifc depending on xml, e.g. items for twitter while json for github
-              return parsingCb(query);
+              return parsingCb(data);
             } else {
               return $q.reject('no data');
             }
@@ -1118,361 +1222,21 @@ define(
             //TODO
             console.log(err);
           });
-
       };
+      _service.jsonpYql = function(yql, parsingCb, config) {
+        //TODO override config
+        var url = _service.createYqlUrl(yql) + "&callback=JSON_CALLBACK";
+        return _doJsonp(url, parsingCb, config);
+      };
+
+      _service.loadJsonUrl = function(url, parsingCb, config) {
+        return _doJsonp(url+'?callback=JSON_CALLBACK', parsingCb, config);
+      };
+
       return _service;
     }
     return angularLifestreamServiceFactory;
   });
-/**
- * Copyright (c) 2011-2014 Felix Gnass
- * Licensed under the MIT license
- */
-(function(root, factory) {
-
-  /* CommonJS */
-  if (typeof exports == 'object')  module.exports = factory()
-
-  /* AMD module */
-  else if (typeof define == 'function' && define.amd) define('spin-js',factory)
-
-  /* Browser global */
-  else root.Spinner = factory()
-}
-(this, function() {
-  
-
-  var prefixes = ['webkit', 'Moz', 'ms', 'O'] /* Vendor prefixes */
-    , animations = {} /* Animation rules keyed by their name */
-    , useCssAnimations /* Whether to use CSS animations or setTimeout */
-
-  /**
-   * Utility function to create elements. If no tag name is given,
-   * a DIV is created. Optionally properties can be passed.
-   */
-  function createEl(tag, prop) {
-    var el = document.createElement(tag || 'div')
-      , n
-
-    for(n in prop) el[n] = prop[n]
-    return el
-  }
-
-  /**
-   * Appends children and returns the parent.
-   */
-  function ins(parent /* child1, child2, ...*/) {
-    for (var i=1, n=arguments.length; i<n; i++)
-      parent.appendChild(arguments[i])
-
-    return parent
-  }
-
-  /**
-   * Insert a new stylesheet to hold the @keyframe or VML rules.
-   */
-  var sheet = (function() {
-    var el = createEl('style', {type : 'text/css'})
-    ins(document.getElementsByTagName('head')[0], el)
-    return el.sheet || el.styleSheet
-  }())
-
-  /**
-   * Creates an opacity keyframe animation rule and returns its name.
-   * Since most mobile Webkits have timing issues with animation-delay,
-   * we create separate rules for each line/segment.
-   */
-  function addAnimation(alpha, trail, i, lines) {
-    var name = ['opacity', trail, ~~(alpha*100), i, lines].join('-')
-      , start = 0.01 + i/lines * 100
-      , z = Math.max(1 - (1-alpha) / trail * (100-start), alpha)
-      , prefix = useCssAnimations.substring(0, useCssAnimations.indexOf('Animation')).toLowerCase()
-      , pre = prefix && '-' + prefix + '-' || ''
-
-    if (!animations[name]) {
-      sheet.insertRule(
-        '@' + pre + 'keyframes ' + name + '{' +
-        '0%{opacity:' + z + '}' +
-        start + '%{opacity:' + alpha + '}' +
-        (start+0.01) + '%{opacity:1}' +
-        (start+trail) % 100 + '%{opacity:' + alpha + '}' +
-        '100%{opacity:' + z + '}' +
-        '}', sheet.cssRules.length)
-
-      animations[name] = 1
-    }
-
-    return name
-  }
-
-  /**
-   * Tries various vendor prefixes and returns the first supported property.
-   */
-  function vendor(el, prop) {
-    var s = el.style
-      , pp
-      , i
-
-    prop = prop.charAt(0).toUpperCase() + prop.slice(1)
-    for(i=0; i<prefixes.length; i++) {
-      pp = prefixes[i]+prop
-      if(s[pp] !== undefined) return pp
-    }
-    if(s[prop] !== undefined) return prop
-  }
-
-  /**
-   * Sets multiple style properties at once.
-   */
-  function css(el, prop) {
-    for (var n in prop)
-      el.style[vendor(el, n)||n] = prop[n]
-
-    return el
-  }
-
-  /**
-   * Fills in default values.
-   */
-  function merge(obj) {
-    for (var i=1; i < arguments.length; i++) {
-      var def = arguments[i]
-      for (var n in def)
-        if (obj[n] === undefined) obj[n] = def[n]
-    }
-    return obj
-  }
-
-  /**
-   * Returns the absolute page-offset of the given element.
-   */
-  function pos(el) {
-    var o = { x:el.offsetLeft, y:el.offsetTop }
-    while((el = el.offsetParent))
-      o.x+=el.offsetLeft, o.y+=el.offsetTop
-
-    return o
-  }
-
-  /**
-   * Returns the line color from the given string or array.
-   */
-  function getColor(color, idx) {
-    return typeof color == 'string' ? color : color[idx % color.length]
-  }
-
-  // Built-in defaults
-
-  var defaults = {
-    lines: 12,            // The number of lines to draw
-    length: 7,            // The length of each line
-    width: 5,             // The line thickness
-    radius: 10,           // The radius of the inner circle
-    rotate: 0,            // Rotation offset
-    corners: 1,           // Roundness (0..1)
-    color: '#000',        // #rgb or #rrggbb
-    direction: 1,         // 1: clockwise, -1: counterclockwise
-    speed: 1,             // Rounds per second
-    trail: 100,           // Afterglow percentage
-    opacity: 1/4,         // Opacity of the lines
-    fps: 20,              // Frames per second when using setTimeout()
-    zIndex: 2e9,          // Use a high z-index by default
-    className: 'spinner', // CSS class to assign to the element
-    top: '50%',           // center vertically
-    left: '50%',          // center horizontally
-    position: 'absolute'  // element position
-  }
-
-  /** The constructor */
-  function Spinner(o) {
-    this.opts = merge(o || {}, Spinner.defaults, defaults)
-  }
-
-  // Global defaults that override the built-ins:
-  Spinner.defaults = {}
-
-  merge(Spinner.prototype, {
-
-    /**
-     * Adds the spinner to the given target element. If this instance is already
-     * spinning, it is automatically removed from its previous target b calling
-     * stop() internally.
-     */
-    spin: function(target) {
-      this.stop()
-
-      var self = this
-        , o = self.opts
-        , el = self.el = css(createEl(0, {className: o.className}), {position: o.position, width: 0, zIndex: o.zIndex})
-        , mid = o.radius+o.length+o.width
-
-      if (target) {
-        target.insertBefore(el, target.firstChild||null)
-        css(el, {
-          left: o.left,
-          top: o.top
-        })
-      }
-
-      el.setAttribute('role', 'progressbar')
-      self.lines(el, self.opts)
-
-      if (!useCssAnimations) {
-        // No CSS animation support, use setTimeout() instead
-        var i = 0
-          , start = (o.lines - 1) * (1 - o.direction) / 2
-          , alpha
-          , fps = o.fps
-          , f = fps/o.speed
-          , ostep = (1-o.opacity) / (f*o.trail / 100)
-          , astep = f/o.lines
-
-        ;(function anim() {
-          i++;
-          for (var j = 0; j < o.lines; j++) {
-            alpha = Math.max(1 - (i + (o.lines - j) * astep) % f * ostep, o.opacity)
-
-            self.opacity(el, j * o.direction + start, alpha, o)
-          }
-          self.timeout = self.el && setTimeout(anim, ~~(1000/fps))
-        })()
-      }
-      return self
-    },
-
-    /**
-     * Stops and removes the Spinner.
-     */
-    stop: function() {
-      var el = this.el
-      if (el) {
-        clearTimeout(this.timeout)
-        if (el.parentNode) el.parentNode.removeChild(el)
-        this.el = undefined
-      }
-      return this
-    },
-
-    /**
-     * Internal method that draws the individual lines. Will be overwritten
-     * in VML fallback mode below.
-     */
-    lines: function(el, o) {
-      var i = 0
-        , start = (o.lines - 1) * (1 - o.direction) / 2
-        , seg
-
-      function fill(color, shadow) {
-        return css(createEl(), {
-          position: 'absolute',
-          width: (o.length+o.width) + 'px',
-          height: o.width + 'px',
-          background: color,
-          boxShadow: shadow,
-          transformOrigin: 'left',
-          transform: 'rotate(' + ~~(360/o.lines*i+o.rotate) + 'deg) translate(' + o.radius+'px' +',0)',
-          borderRadius: (o.corners * o.width>>1) + 'px'
-        })
-      }
-
-      for (; i < o.lines; i++) {
-        seg = css(createEl(), {
-          position: 'absolute',
-          top: 1+~(o.width/2) + 'px',
-          transform: o.hwaccel ? 'translate3d(0,0,0)' : '',
-          opacity: o.opacity,
-          animation: useCssAnimations && addAnimation(o.opacity, o.trail, start + i * o.direction, o.lines) + ' ' + 1/o.speed + 's linear infinite'
-        })
-
-        if (o.shadow) ins(seg, css(fill('#000', '0 0 4px ' + '#000'), {top: 2+'px'}))
-        ins(el, ins(seg, fill(getColor(o.color, i), '0 0 1px rgba(0,0,0,.1)')))
-      }
-      return el
-    },
-
-    /**
-     * Internal method that adjusts the opacity of a single line.
-     * Will be overwritten in VML fallback mode below.
-     */
-    opacity: function(el, i, val) {
-      if (i < el.childNodes.length) el.childNodes[i].style.opacity = val
-    }
-
-  })
-
-
-  function initVML() {
-
-    /* Utility function to create a VML tag */
-    function vml(tag, attr) {
-      return createEl('<' + tag + ' xmlns="urn:schemas-microsoft.com:vml" class="spin-vml">', attr)
-    }
-
-    // No CSS transforms but VML support, add a CSS rule for VML elements:
-    sheet.addRule('.spin-vml', 'behavior:url(#default#VML)')
-
-    Spinner.prototype.lines = function(el, o) {
-      var r = o.length+o.width
-        , s = 2*r
-
-      function grp() {
-        return css(
-          vml('group', {
-            coordsize: s + ' ' + s,
-            coordorigin: -r + ' ' + -r
-          }),
-          { width: s, height: s }
-        )
-      }
-
-      var margin = -(o.width+o.length)*2 + 'px'
-        , g = css(grp(), {position: 'absolute', top: margin, left: margin})
-        , i
-
-      function seg(i, dx, filter) {
-        ins(g,
-          ins(css(grp(), {rotation: 360 / o.lines * i + 'deg', left: ~~dx}),
-            ins(css(vml('roundrect', {arcsize: o.corners}), {
-                width: r,
-                height: o.width,
-                left: o.radius,
-                top: -o.width>>1,
-                filter: filter
-              }),
-              vml('fill', {color: getColor(o.color, i), opacity: o.opacity}),
-              vml('stroke', {opacity: 0}) // transparent stroke to fix color bleeding upon opacity change
-            )
-          )
-        )
-      }
-
-      if (o.shadow)
-        for (i = 1; i <= o.lines; i++)
-          seg(i, -2, 'progid:DXImageTransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)')
-
-      for (i = 1; i <= o.lines; i++) seg(i)
-      return ins(el, g)
-    }
-
-    Spinner.prototype.opacity = function(el, i, val, o) {
-      var c = el.firstChild
-      o = o.shadow && o.lines || 0
-      if (c && i+o < c.childNodes.length) {
-        c = c.childNodes[i+o]; c = c && c.firstChild; c = c && c.firstChild
-        if (c) c.opacity = val
-      }
-    }
-  }
-
-  var probe = css(createEl('group'), {behavior: 'url(#default#VML)'})
-
-  if (!vendor(probe, 'transform') && probe.adj) initVML()
-  else useCssAnimations = vendor(probe, 'animation')
-
-  return Spinner
-
-}));
-
 /*!
  * Masonry PACKAGED v3.1.5
  * Cascading grid layout library
@@ -4360,7 +4124,252 @@ if ( typeof define === 'function' && define.amd ) {
 })( window );
 
 
-define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifestream-templates', 'spin-js', 'masonry'], function(angular, ngRoute, angularLifestreamService, angularLifestreamTemplates, Spinner, Masonry) {
+angular.module('cgBusy',[]);
+
+//loosely modeled after angular-promise-tracker
+angular.module('cgBusy').factory('_cgBusyTrackerFactory',['$timeout',function($timeout){
+
+	return function(){
+
+		var tracker = {};
+		tracker.promises = [];
+		tracker.delayPromise = null;
+		tracker.durationPromise = null;
+
+		tracker.reset = function(options){
+			tracker.minDuration = options.minDuration;
+
+			tracker.promises = [];
+			angular.forEach(options.promises,function(p){
+				if (!p || p.$cgBusyFulfilled) {
+					return;
+				}
+				addPromiseLikeThing(p);
+			});
+
+			if (tracker.promises.length === 0) {
+				//if we have no promises then dont do the delay or duration stuff
+				return;
+			}
+
+			if (options.delay > 0) {
+				tracker.delayPromise = $timeout(function(){
+					tracker.delayPromise = null;
+					if (options.minDuration) {
+						tracker.durationPromise = $timeout(function(){
+							tracker.durationPromise = null;
+						},options.minDuration);
+					}
+				},options.delay);
+			}
+		};
+
+		tracker.getThen = function(promise){
+			var then = promise && (promise.then || promise.$then ||
+	        	(promise.$promise && promise.$promise.then));
+
+			return then;
+		};
+
+		var addPromiseLikeThing = function(promise){
+			var then = tracker.getThen(promise);
+
+			if (!then) {
+				throw new Error('cgBusy expects a promise (or something that has a .promise or .$promise');
+			}
+
+			if (tracker.promises.indexOf(promise) !== -1){
+				return;
+			}
+			tracker.promises.push(promise);
+
+			then(function(){
+				promise.$cgBusyFulfilled = true;
+				if (tracker.promises.indexOf(promise) === -1) {
+					return;
+				}
+				tracker.promises.splice(tracker.promises.indexOf(promise),1);
+			},function(){
+				promise.$cgBusyFulfilled = true;
+				if (tracker.promises.indexOf(promise) === -1) {
+					return;
+				}
+				tracker.promises.splice(tracker.promises.indexOf(promise),1);
+			});
+		};
+
+		tracker.active = function(){
+			if (tracker.delayPromise){
+				return false;
+			}
+			if (tracker.durationPromise){
+				return true;
+			}
+			return tracker.promises.length > 0;
+		};
+
+		return tracker;
+
+	};
+}]);
+
+angular.module('cgBusy').value('cgBusyDefaults',{});
+
+angular.module('cgBusy').directive('cgBusy',['$compile','$templateCache','cgBusyDefaults','$http','_cgBusyTrackerFactory',
+	function($compile,$templateCache,cgBusyDefaults,$http,_cgBusyTrackerFactory){
+		return {
+			restrict: 'A',
+			link: function(scope, element, attrs, fn) {
+
+				//Apply position:relative to parent element if necessary
+				var position = element.css('position');
+				if (position === 'static' || position === '' || typeof position === 'undefined'){
+					element.css('position','relative');
+				}
+
+				var templateElement;
+				var currentTemplate;
+				var templateScope;
+				var backdrop;
+				var tracker = _cgBusyTrackerFactory();
+
+				var defaults = {
+					templateUrl: 'angular-busy.html',
+					delay:0,
+					minDuration:0,
+					backdrop: true,
+					message:'Please Wait...'
+				};
+
+				angular.extend(defaults,cgBusyDefaults);
+
+				scope.$watchCollection(attrs.cgBusy,function(options){
+
+					if (!options) {
+						options = {promise:null};
+					}
+
+					if (angular.isString(options)) {
+						throw new Error('Invalid value for cg-busy.  cgBusy no longer accepts string ids to represent promises/trackers.');
+					}
+
+					//is it an array (of promises) or one promise
+					if (angular.isArray(options) || tracker.getThen(options)) {
+						options = {promise:options};
+					}
+
+					options = angular.extend(angular.copy(defaults),options);
+
+					if (!options.templateUrl){
+						options.templateUrl = defaults.templateUrl;
+					}
+
+					if (!angular.isArray(options.promise)){
+						options.promise = [options.promise];
+					}
+
+					// options.promise = angular.isArray(options.promise) ? options.promise : [options.promise];
+					// options.message = options.message ? options.message : 'Please Wait...';
+					// options.template = options.template ? options.template : cgBusyTemplateName;
+					// options.minDuration = options.minDuration ? options.minDuration : 0;
+					// options.delay = options.delay ? options.delay : 0;
+
+					if (!templateScope) {
+						templateScope = scope.$new();
+					}
+
+					templateScope.$message = options.message;
+
+					if (!angular.equals(tracker.promises,options.promise)) {
+						tracker.reset({
+							promises:options.promise,
+							delay:options.delay,
+							minDuration: options.minDuration
+						});
+					}
+
+					templateScope.$cgBusyIsActive = function() {
+						return tracker.active();
+					};
+
+
+					if (!templateElement || currentTemplate !== options.templateUrl || backdrop !== options.backdrop) {
+
+						if (templateElement) {
+							templateElement.remove();
+						}
+
+						currentTemplate = options.templateUrl;
+						backdrop = options.backdrop;
+
+						$http.get(currentTemplate,{cache: $templateCache}).success(function(indicatorTemplate){
+
+							options.backdrop = typeof options.backdrop === 'undefined' ? true : options.backdrop;
+							var backdrop = options.backdrop ? '<div class="cg-busy cg-busy-backdrop"></div>' : '';
+
+							var template = '<div class="cg-busy cg-busy-animation ng-hide" ng-show="$cgBusyIsActive()">'+ backdrop + indicatorTemplate+'</div>';
+							templateElement = $compile(template)(templateScope);
+
+							angular.element(templateElement.children()[options.backdrop?1:0])
+								.css('position','absolute')
+								.css('top',0)
+								.css('left',0)
+								.css('right',0)
+								.css('bottom',0);
+							element.append(templateElement);
+
+						}).error(function(data){
+							throw new Error('Template specified for cgBusy ('+options.templateUrl+') could not be loaded. ' + data);
+						});
+					}
+
+				},true);
+			}
+		};
+	}
+	]);
+
+
+angular.module('cgBusy').run(['$templateCache', function($templateCache) {
+  
+
+  $templateCache.put('angular-busy.html',
+    "<div class=\"cg-busy-default-wrapper\">\n" +
+    "\n" +
+    "   <div class=\"cg-busy-default-sign\">\n" +
+    "\n" +
+    "      <div class=\"cg-busy-default-spinner\">\n" +
+    "         <div class=\"bar1\"></div>\n" +
+    "         <div class=\"bar2\"></div>\n" +
+    "         <div class=\"bar3\"></div>\n" +
+    "         <div class=\"bar4\"></div>\n" +
+    "         <div class=\"bar5\"></div>\n" +
+    "         <div class=\"bar6\"></div>\n" +
+    "         <div class=\"bar7\"></div>\n" +
+    "         <div class=\"bar8\"></div>\n" +
+    "         <div class=\"bar9\"></div>\n" +
+    "         <div class=\"bar10\"></div>\n" +
+    "         <div class=\"bar11\"></div>\n" +
+    "         <div class=\"bar12\"></div>\n" +
+    "      </div>\n" +
+    "\n" +
+    "      <div class=\"cg-busy-default-text\">{{$message}}</div>\n" +
+    "\n" +
+    "   </div>\n" +
+    "\n" +
+    "</div>"
+  );
+
+}]);
+
+define("angular-busy", ["angular"], (function (global) {
+    return function () {
+        var ret, fn;
+        return ret || global.busy;
+    };
+}(this)));
+
+define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifestream-templates', 'masonry', 'angular-busy'], function(angular, ngRoute, angularLifestreamService, angularLifestreamTemplates, Masonry, busy) {
 
   //TODO For non-amd
   // (function(window, angular, undefined) {
@@ -4368,32 +4377,7 @@ define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-ser
 
   console.log('bootstrap lifestream');
 
-  var setupSpinLoad = function(target) {
-    var opts = {
-      lines: 9, // The number of lines to draw
-      length: 8, // The length of each line
-      width: 7, // The line thickness
-      radius: 9, // The radius of the inner circle
-      corners: 1, // Corner roundness (0..1)
-      rotate: 0, // The rotation offset
-      direction: 1, // 1: clockwise, -1: counterclockwise
-      color: '#000', // #rgb or #rrggbb or array of colors
-      speed: 1, // Rounds per second
-      trail: 60, // Afterglow percentage
-      shadow: false, // Whether to render a shadow
-      hwaccel: false, // Whether to use hardware acceleration
-      className: 'spinner', // The CSS class to assign to the spinner
-      zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: 'auto', // Top position relative to parent in px
-      left: 'auto' // Left position relative to parent in px
-    };
-    var spinner = new Spinner(opts).spin(target);
-
-  };
-
-
-
-  var app = angular.module('angular-lifestream', ["ngRoute", 'angular-lifestream-templates'])
+  var app = angular.module('angular-lifestream', ["ngRoute", 'angular-lifestream-templates', 'cgBusy'])
     .config(['$provide',
       function($provide) {
         $provide.factory('angularLifestreamService', ['$http', '$q', '$interpolate', angularLifestreamService]);
@@ -4422,14 +4406,12 @@ define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-ser
         };
       }
     ])
-    .directive('lifestream', ['angularLifestreamService',
-      function(angularLifestreamService) {
+    .directive('lifestream', ['angularLifestreamService', '$http','$q',
+      function(angularLifestreamService, $http,$q) {
         var controller = function($scope, $element, $timeout) {
-          console.log(angularLifestreamService);
-          console.log('init angular lifestream');
           $scope.items = [];
           //no selector to select that children, use default name
-          setupSpinLoad($element[0].querySelector('.spinner-placeholder'));
+          // setupSpinLoad($element[0].querySelector('.spinner-placeholder'));
 
           //TODO spinner at bottom; end only after all feed loaded
           //effective config together with defaults
@@ -4443,35 +4425,51 @@ define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-ser
             itemSelector: '.lifestream-item'
           });
 
-
           $scope.refresh = function() {
             //need keep refresh?
 
-            console.log('masonry');
             //ideally bind after angularjs ng-repeat render, wait until scope.$last in child scope $scope.$$childHead, but seems resolve by timeout alone
             $timeout(function() {
-            //better to use .addItems()?; to preprend at the back
+              //better to use .addItems()?; to preprend at the back
               msnry.reloadItems();
               msnry.layout();
-              console.log('masonry layout');
             });
             // }
 
           };
+
+          var allLoaded = $q.defer();
+          
+          $scope.allLoadedPromise = allLoaded.promise;
+
+          $scope.allLoadedPromise.then(function(){
+            console.log('all loaded');
+          })
+
+
+          var feedCounter = 0;
           var feedPromises = angularLifestreamService.load();
+
+          var feedLoaded = function() {
+            feedCounter++;
+            console.log(feedCounter);
+            if(feedCounter == feedPromises.length){
+              allLoaded.resolve();
+            }
+          };
+
           angular.forEach(feedPromises, function(feedPromise) {
             feedPromise.then(function(newItems) {
               $scope.items = angularLifestreamService.finished($scope.items, newItems);
-
               $scope.refresh();
-
+              feedLoaded();
             });
 
           });
 
         };
         return {
-          controller: ['$scope', '$element', '$timeout',controller],
+          controller: ['$scope', '$element', '$timeout', controller],
           restrict: 'EA',
           require: '^ngModel',
           transclude: true,
