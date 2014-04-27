@@ -1,3 +1,4 @@
+'use strict';
 define(['services/abstract'], function(abstractServiceFeed) {
 
       var ServiceFeed = abstractServiceFeed.factory();
@@ -20,21 +21,33 @@ define(['services/abstract'], function(abstractServiceFeed) {
             var MESSAGE_CHAR_LIMIT = 250;
             var message = post.message;
             var messageExcerpt;
-
-            var content;
-            if(message){
+            //better interpolate inside?
+            var content, link, linkDisplayed;
+            if (message) {
                   content = message.length > MESSAGE_CHAR_LIMIT ? message.substr(0, MESSAGE_CHAR_LIMIT) + '...' : message;
             }
             //possibly story e.g. update group photo , add pictures etc
-            if(post.type === 'photo' && post.story){
+            if (post.type === 'photo' && post.story) {
                   content = post.story;
             }
+            if (post.type === 'link') {
+                  link = post.link;
+                  linkDisplayed = post.name;
+            }
+            var media=null;
 
+            if(post.picture || link){
+                  media = {
+                        "thumbnail": post.picture,
+                        "link": link,
+                        "linkDisplayed": linkDisplayed
+                  }
+            }
 
             return {
                   "content": content,
                   "publisher": post.from.name,
-                  "thumbnail":post.picture
+                  "media": media
             }
 
       };
@@ -49,17 +62,17 @@ define(['services/abstract'], function(abstractServiceFeed) {
             //TODO study input
             // var filter = this._config.filter || []; 
 
-            var groupUrl = 'https://www.facebook.com/groups/'+this._config.user;
+            var groupUrl = 'https://www.facebook.com/groups/' + this._config.user;
             var filter = [];
-            for (i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                   var post = items[i];
                   var postId = post.id.split('_')[1];
                   output.push({
                         date: new Date(post.created_time),
                         config: this._config,
                         context: parseFbPost(post),
-                        url: groupUrl+'/permalink/' + postId,
-                        groupUrl: groupUrl  //TODO better use group alias, but can only input from user, not exists in response
+                        url: groupUrl + '/permalink/' + postId,
+                        groupUrl: groupUrl //TODO better use group alias, but can only input from user, not exists in response
                   });
             }
 

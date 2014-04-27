@@ -22,18 +22,21 @@ define(['services/abstract'], function(abstractServiceFeed) {
 
             if (status.type === 'CreateEvent' &&
                   status.payload.ref_type === 'repository') {
-
-                  return $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
+                  return $interpolate('<a target="_blank" href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
                         '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
             } else if (status.type === 'CreateEvent' &&
                   status.payload.ref_type === 'branch') {
-                  return $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created branch <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}">{{payload.ref}}</a> at repository ' + '<a href="http://github.com/' +
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> created branch <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}">{{payload.ref}}</a> at repository ' + '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
+            } else if (status.type === 'ForkEvent') {
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> forked repository ' +
+                        '<a href="http://github.com/' +
+                        '{{repo.name}}">{{repo.name}}</a>')(status);
+            } else if (status.type === 'PushEvent') {
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}"> {{payload.ref}}</a> at <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
             }
       };
-      //add PR event?
-
 
       /**
        * @private
@@ -45,6 +48,7 @@ define(['services/abstract'], function(abstractServiceFeed) {
             var items = data.results.json;
             console.log('github loaded count:' + items.length);
             var output = [],
+                  aggregatedEvents = [],
                   i = 0,
                   j;
 
@@ -55,10 +59,17 @@ define(['services/abstract'], function(abstractServiceFeed) {
             //TODO use org as alias now
             if (!filter.length) {
                   // filter = config.filter;
-                  filter = ['CreateEvent'];
+                  filter = ['CreateEvent', 'ForkEvent', 'PushEvent'];
             }
+            //aggregate events like push
+            //TODO add PR
+
+            var $interpolate = this._service.angular_services.$interpolate;
 
             j = items.length;
+
+            //originally sorted
+
             for (; i < j; i++) {
                   var status = items[i].json;
                   if (filter) {
@@ -68,16 +79,56 @@ define(['services/abstract'], function(abstractServiceFeed) {
                               }
                         }
                   }
-                  var $interpolate = this._service.angular_services.$interpolate;
+
+                  var indexOflatestPushEventBySameActorRepo = function(events, eventToCompare) {
+                        for (var k = 0; k < events.length; k++) {
+                              var status = events[k].status;
+                              var isSame = (status.actor.id === eventToCompare.actor.id) && (status.repo.id === eventToCompare.repo.id);
+                              if (isSame) return k;
+                        }
+                        return -1;
+                  };
+
+
+                  //aggregate to the first(latest in time)
+                  if (status.type === 'PushEvent') {
+                        var index = indexOflatestPushEventBySameActorRepo(aggregatedEvents, status);
+                        if (index > -1) {
+                              aggregatedEvents[index].count++;
+                              continue;
+                        }
+                        //else new one, push it
+                  }
+
+                  aggregatedEvents.push({
+                        date: new Date(status.created_at),
+                        status: status,
+                        count: 1
+                  });
+            }
+
+            for (var i = 0; i < aggregatedEvents.length; i++) {
+                  var status = aggregatedEvents[i].status;
+                  status.count = aggregatedEvents[i].count;
+
                   output.push({
                         date: new Date(status.created_at),
                         config: this._config,
                         context: {
-                              "content": parseGithubStatus(status, $interpolate),
+                              "publisher": $interpolate('<a href="https://github.com/{{actor.login}}">{{actor.login}}</a>')(status),
+                              "content": parseGithubStatus(status, $interpolate)
                         },
                         url: 'https://github.com/' + this._config.user
                   });
+
             }
+
+            //after aggregate, so content can parse with variable like count
+
+            console.log(output);
+            // output
+
+
 
             return output;
       };

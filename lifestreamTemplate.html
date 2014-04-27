@@ -2,7 +2,6 @@
     <ul class="row" id="lifestream-container">
         <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: config.limit" class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
         ng-include="item | serviceTemplateFilter"></li>
-        <li  ng-show="!items.length" class="atom col-xs-10 lifestream-placeholder" ><div class="spinner-placeholder"></div></li>
     </ul>
     <div class="row col-xs-10 " cg-busy="{promise:allLoadedPromise,message:'Loading'}"></div>
 </div>
@@ -15,8 +14,8 @@
 <script type="text/ng-template" id="twitter-template">
 <div class="publisher-container"><strong>{{item.context.publisher.name}}</strong> <span class="publisher">@{{item.context.publisher.screen_name}}</span></div>
 <p class="content" ng-bind-html="item.context.tweet"></p> 
-<div class="media"><a ng-href="{{item.context.media}}:large">
-<img  ng-show="item.context.media" ng-src="{{item.context.media}}"></img></a></div>
+<div ng-if="item.context.media" class="media"><a target="_blank" ng-href="{{item.context.media}}:large">
+<img   ng-src="{{item.context.media}}"></img></a></div>
 <small class="view_original">
 <a target="_blank" ng-href="{{item.context.complete_url}}">
 >>view on Twitter</a></small>
@@ -29,8 +28,12 @@ post on wall <a href="${link}">{{item.context.title}}</a>
 <script type="text/ng-template" id="facebook_group-template">
 <div class="publisher-container"><strong>{{item.context.publisher}}</strong> <small> posted in <a target="_blank" ng-href="{{item.groupUrl}}">FB Group</a> </small> </div>
 {{item.context.content}}
-<div ng-if="item.context.thumbnail"  class="media">
-<img  ng-src="{{item.context.thumbnail}}"></div>
+
+
+<div ng-if="item.context.media"  class="media">
+<a target="_blank" ng-href="{{item.context.media.link}}">
+<div ng-if="item.context.media.link">{{item.context.media.linkDisplayed}}</div>
+<img  ng-src="{{item.context.media.thumbnail}}"></a></div>
 <small class="view_original">
 <a target="_blank" ng-href="{{item.url}}">
 >>view on Facebook</a></small>
@@ -38,6 +41,7 @@ post on wall <a href="${link}">{{item.context.title}}</a>
 
 
 <script type="text/ng-template" id="github_org-template">
+// <div class="publisher-container"><span ng-bind-html="{{item.context.publisher}}"></span></div>
 <p ng-bind-html="item.context.content"></p>
 </script>
 

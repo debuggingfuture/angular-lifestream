@@ -83,6 +83,8 @@
     color: #999;
   }
   .lifestream li .media{
+    /*border: 1px solid;*/
+    /*border-color: #e9eaed #dadada #ccc;*/
   }
 
   .lifestream .content{
@@ -95,10 +97,19 @@
     line-height: 1.5em;
   }
 
+
+  .lifestream li .media div{
+    text-align: center;
+      margin-left: auto;
+    margin-right: auto;
+}
+
   .lifestream li .media img{
     width:auto;
     display: block;
-    max-width: 100%
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
 
