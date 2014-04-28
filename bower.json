@@ -19,7 +19,7 @@
     "angular-animate": "*",
     "angular-route": "*",
     "angular-busy":"*",
-    "spin.js": "*"
+    "masonry": "*"
   },
   "devDependencies": {},
   "resolutions": {
