@@ -3,7 +3,7 @@
         <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: config.limit" class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
         ng-include="item | serviceTemplateFilter"></li>
     </ul>
-    <div class="row col-xs-10 " cg-busy="{promise:allLoadedPromise,message:'Loading'}"></div>
+    <div class="row col-xs-10 " cg-busy="angularBusyConfig"></div>
 </div>
 
 <script type="text/ng-template" id="default-template">

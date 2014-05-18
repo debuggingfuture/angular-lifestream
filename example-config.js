@@ -18,8 +18,6 @@
        }]
      };
 
-     //scope in directive is different, need pass in
-
    }
  ]);
 

@@ -44,17 +44,21 @@ define(['services/abstract'], function(abstractServiceFeed) {
                   }
             }
 
+            var likeCount = post.likes.length;
+            var commentCount = post.comments.data.length;
+
             return {
                   "content": content,
                   "publisher": post.from.name,
-                  "media": media
+                  "media": media,
+                  "likeCount" :likeCount,
+                  "commentCount":commentCount
             }
 
       };
 
       ServiceFeed.prototype.parse = function(query) {
             var items = query.data.data;
-            console.log('fb loaded count:' + items.length);
             //dirty tricks
             var $interpolate = this._service.angular_services.$interpolate;
 

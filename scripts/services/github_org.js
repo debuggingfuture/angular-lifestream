@@ -3,7 +3,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
       var ServiceFeed = abstractServiceFeed.factory();
 
       ServiceFeed.prototype.init = function() {
-            console.log('github init');
             this._config.customServiceClass = this._config.customServiceClass || "lifestream-github";
             this._config.isYql = true;
       };
@@ -34,7 +33,7 @@ define(['services/abstract'], function(abstractServiceFeed) {
                         '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
             } else if (status.type === 'PushEvent') {
-                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}"> {{payload.ref}}</a> at <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
             }
       };
 
@@ -46,7 +45,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
       ServiceFeed.prototype.parse = function(query) {
             var data = abstractServiceFeed.parseYqlRes(query);
             var items = data.results.json;
-            console.log('github loaded count:' + items.length);
             var output = [],
                   aggregatedEvents = [],
                   i = 0,

@@ -76,6 +76,16 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
           })
 
 
+
+     //scope in directive is different, need pass in
+// cg-busy="{promise:allLoadedPromise,message:'Loading'}">
+     $scope.angularBusyConfig = {
+      promise:$scope.allLoadedPromise,
+      message:'Loading it',
+      templateUrl:'loading.html'
+     }
+
+
           var feedCounter = 0;
           var feedPromises = angularLifestreamService.load();
 

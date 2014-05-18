@@ -428,7 +428,7 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-angular.module("angular-lifestream-templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("lifestreamTemplate.html","<div class=\"lifestream container-fluid\" ng-class=\"config.theme\">\n    <ul class=\"row\" id=\"lifestream-container\">\n        <li  ng-hide=\"!items.length\" ng-repeat=\"item in items | limitTo: config.limit\" class=\"lifestream-item atom col-xs-10 col-sm-5 col-md-3\"  ng-class=\"item | serviceClassFilter\" \n        ng-include=\"item | serviceTemplateFilter\"></li>\n    </ul>\n    <div class=\"row col-xs-10 \" cg-busy=\"{promise:allLoadedPromise,message:\'Loading\'}\"></div>\n</div>\n\n<script type=\"text/ng-template\" id=\"default-template\">\n<p ng-bind-html=\"item.context.content\"></p> <small class=\"view_original\"><a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\"> >>view original</a></small>\n</script>\n\n<!-- how to conrol scope here? in ng-include -->\n<script type=\"text/ng-template\" id=\"twitter-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher.name}}</strong> <span class=\"publisher\">@{{item.context.publisher.screen_name}}</span></div>\n<p class=\"content\" ng-bind-html=\"item.context.tweet\"></p> \n<div ng-if=\"item.context.media\" class=\"media\"><a target=\"_blank\" ng-href=\"{{item.context.media}}:large\">\n<img   ng-src=\"{{item.context.media}}\"></img></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\">\n>>view on Twitter</a></small>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_page-template\">\npost on wall <a href=\"${link}\">{{item.context.title}}</a>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_group-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher}}</strong> <small> posted in <a target=\"_blank\" ng-href=\"{{item.groupUrl}}\">FB Group</a> </small> </div>\n{{item.context.content}}\n\n\n<div ng-if=\"item.context.media\"  class=\"media\">\n<a target=\"_blank\" ng-href=\"{{item.context.media.link}}\">\n<div ng-if=\"item.context.media.link\">{{item.context.media.linkDisplayed}}</div>\n<img  ng-src=\"{{item.context.media.thumbnail}}\"></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.url}}\">\n>>view on Facebook</a></small>\n</script>\n\n\n<script type=\"text/ng-template\" id=\"github_org-template\">\n<p ng-bind-html=\"item.context.content\"></p>\n</script>\n\n");}]);
+angular.module("angular-lifestream-templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("lifestreamTemplate.html","<div class=\"lifestream container-fluid\" ng-class=\"config.theme\">\n    <ul class=\"row\" id=\"lifestream-container\">\n        <li  ng-hide=\"!items.length\" ng-repeat=\"item in items | limitTo: config.limit\" class=\"lifestream-item atom col-xs-10 col-sm-5 col-md-3\"  ng-class=\"item | serviceClassFilter\" \n        ng-include=\"item | serviceTemplateFilter\"></li>\n    </ul>\n    <div class=\"row col-xs-10 \" cg-busy=\"angularBusyConfig\"></div>\n</div>\n\n<script type=\"text/ng-template\" id=\"default-template\">\n<p ng-bind-html=\"item.context.content\"></p> <small class=\"view_original\"><a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\"> >>view original</a></small>\n</script>\n\n<!-- how to conrol scope here? in ng-include -->\n<script type=\"text/ng-template\" id=\"twitter-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher.name}}</strong> <span class=\"publisher\">@{{item.context.publisher.screen_name}}</span></div>\n<p class=\"content\" ng-bind-html=\"item.context.tweet\"></p> \n<div ng-if=\"item.context.media\" class=\"media\"><a target=\"_blank\" ng-href=\"{{item.context.media}}:large\">\n<img   ng-src=\"{{item.context.media}}\"></img></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.context.complete_url}}\">\n>>view on Twitter</a></small>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_page-template\">\npost on wall <a href=\"${link}\">{{item.context.title}}</a>\n</script>\n\n<script type=\"text/ng-template\" id=\"facebook_group-template\">\n<div class=\"publisher-container\"><strong>{{item.context.publisher}}</strong> <small> posted in <a target=\"_blank\" ng-href=\"{{item.groupUrl}}\">FB Group</a> </small> </div>\n{{item.context.content}}\n\n\n<div ng-if=\"item.context.media\"  class=\"media\">\n<a target=\"_blank\" ng-href=\"{{item.context.media.link}}\">\n<div ng-if=\"item.context.media.link\">{{item.context.media.linkDisplayed}}</div>\n<img  ng-src=\"{{item.context.media.thumbnail}}\"></a></div>\n<small class=\"view_original\">\n<a target=\"_blank\" ng-href=\"{{item.url}}\">\n>>view on Facebook</a></small>\n</script>\n\n\n<script type=\"text/ng-template\" id=\"github_org-template\">\n<p ng-bind-html=\"item.context.content\"></p>\n</script>\n\n");}]);
 define("angular-lifestream-templates", ["angular"], function(){});
 
  //abstract class for feed service
@@ -666,17 +666,21 @@ define('services/facebook_group',['services/abstract'], function(abstractService
                   }
             }
 
+            var likeCount = post.likes.length;
+            var commentCount = post.comments.data.length;
+
             return {
                   "content": content,
                   "publisher": post.from.name,
-                  "media": media
+                  "media": media,
+                  "likeCount" :likeCount,
+                  "commentCount":commentCount
             }
 
       };
 
       ServiceFeed.prototype.parse = function(query) {
             var items = query.data.data;
-            console.log('fb loaded count:' + items.length);
             //dirty tricks
             var $interpolate = this._service.angular_services.$interpolate;
 
@@ -710,7 +714,6 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
       var ServiceFeed = abstractServiceFeed.factory();
 
       ServiceFeed.prototype.init = function() {
-            console.log('github init');
             this._config.customServiceClass = this._config.customServiceClass || "lifestream-github";
             this._config.isYql = true;
       };
@@ -741,7 +744,7 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
                         '<a href="http://github.com/' +
                         '{{repo.name}}">{{repo.name}}</a>')(status);
             } else if (status.type === 'PushEvent') {
-                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}/tree/{{payload.ref}}"> {{payload.ref}}</a> at <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
+                  return $interpolate('<a target="_blank"  href="https://github.com/{{actor.login}}">{{actor.login}}</a> pushed {{count}} times to <a href="http://github.com/{{repo.name}}">{{repo.name}}</a>')(status);
             }
       };
 
@@ -753,7 +756,6 @@ define('services/github_org',['services/abstract'], function(abstractServiceFeed
       ServiceFeed.prototype.parse = function(query) {
             var data = abstractServiceFeed.parseYqlRes(query);
             var items = data.results.json;
-            console.log('github loaded count:' + items.length);
             var output = [],
                   aggregatedEvents = [],
                   i = 0,
@@ -4445,6 +4447,16 @@ define('angular-lifestream',['angular', 'angular-route', 'angular-lifestream-ser
           $scope.allLoadedPromise.then(function(){
             console.log('all loaded');
           })
+
+
+
+     //scope in directive is different, need pass in
+// cg-busy="{promise:allLoadedPromise,message:'Loading'}">
+     $scope.angularBusyConfig = {
+      promise:$scope.allLoadedPromise,
+      message:'Loading it',
+      templateUrl:'loading.html'
+     }
 
 
           var feedCounter = 0;
