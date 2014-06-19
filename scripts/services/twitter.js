@@ -91,8 +91,8 @@ define(['services/abstract'], function(abstractServiceFeed) {
      * @param  {Object[]} items
      * @return {Object[]} Array of Twitter status messages.
      */
-    ServiceFeed.prototype.parse = function(data) {
-        var items = data.statuses;
+    ServiceFeed.prototype.parse = function(res) {
+        var items = res.data.statuses;
         var output = [],
             i = 0,
             j = items.length;
