@@ -8,13 +8,13 @@ define(['services/abstract'], function(abstractServiceFeed) {
     // ServiceFeed.constructor = ServiceFeed;
     var ServiceFeed = abstractServiceFeed.factory();
     ServiceFeed.prototype.init = function() {
-        this._config.isYql = true;
+        this._config.isYql = false;
     };
 
     var charEscapedByService = [{
-        "escaped": "&#39;",
-        "unescaped": "\'"
-    }],
+            "escaped": "&#39;",
+            "unescaped": "\'"
+        }],
         twitterSize = ['thumb', 'large'],
         parseMediaUrl = function(status) {
             if ((status.user.entities || {}).media) {
@@ -40,15 +40,15 @@ define(['services/abstract'], function(abstractServiceFeed) {
 
 
             var link = function(t) {
-                return t.replace(
-                    /[a-z]+:\/\/[a-z0-9\-_]+\.[a-z0-9\-_:~%&\?\/.=]+[^:\.,\)\s*$]/ig,
-                    function(m) {
-                        return '<a href="' + m + '">' +
-                            ((m.length > 25) ? m.substr(0, 24) + '...' : m) +
-                            '</a>';
-                    }
-                );
-            },
+                    return t.replace(
+                        /[a-z]+:\/\/[a-z0-9\-_]+\.[a-z0-9\-_:~%&\?\/.=]+[^:\.,\)\s*$]/ig,
+                        function(m) {
+                            return '<a href="' + m + '">' +
+                                ((m.length > 25) ? m.substr(0, 24) + '...' : m) +
+                                '</a>';
+                        }
+                    );
+                },
                 at = function(t) {
                     return t.replace(
                         /(^|[^\w]+)\@([a-zA-Z0-9_]{1,15})/g,
@@ -72,15 +72,18 @@ define(['services/abstract'], function(abstractServiceFeed) {
 
         };
 
-
-
-    ServiceFeed.prototype.getYqlUrl = function() {
-
-        var tableUrl = 'https://raw.github.com/vincentlaucy/twitter-open-data-table/master/table.xml';
-        return 'USE "' + tableUrl +
-            '" AS twitter; SELECT * FROM twitter WHERE screen_name = "' +
-            this._config.user + '"';
+    ServiceFeed.prototype.getJsonUrl = function() {
+        return this._config.jsonUrl;
     };
+
+
+    // ServiceFeed.prototype.getYqlUrl = function() {
+
+    //     var tableUrl = 'https://raw.github.com/vincentlaucy/twitter-open-data-table/master/table.xml';
+    //     return 'USE "' + tableUrl +
+    //         '" AS twitter; SELECT * FROM twitter WHERE screen_name = "' +
+    //         this._config.user + '"';
+    // };
 
     /**
      * Parse the input from twitter
@@ -88,9 +91,8 @@ define(['services/abstract'], function(abstractServiceFeed) {
      * @param  {Object[]} items
      * @return {Object[]} Array of Twitter status messages.
      */
-    ServiceFeed.prototype.parse = function(query) {
-        var data = abstractServiceFeed.parseYqlRes(query);
-        var items = data.results.items;
+    ServiceFeed.prototype.parse = function(data) {
+        var items = data.statuses;
         var output = [],
             i = 0,
             j = items.length;

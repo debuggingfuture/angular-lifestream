@@ -85,7 +85,7 @@ app.get('/fbgroup', function(req, res) {
 
 app.get('/twitter', function(req, res) {
     twitterService.search().then(function(data) {
-        res.send(data);
+        res.jsonp(data);
 });
 
 });
