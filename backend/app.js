@@ -1,20 +1,28 @@
+var PORT = 18503;
 var express = require('express');
 var app = express();
 var es6 = require('es6-shim');
 var request = require('request');
 var Q = require('q');
-
 var util = require('util');
+var config = require('./config.json');
 
+var twitterService = require('./services/twitter.js')(config["twitter_user"]);
 
 app.get('/', function(req, res) {
     res.send('hello world');
 });
 
-var config = require('config.json');
+console.log(twitterService);
 
 var fbConfig = config["fbgroup"];
-console.log(fbConfig);
+
+
+// twitter
+// token
+// 2224226316-B0bnf2lOR5rkurldsV2la8QWKRIr4tqaBTcBSaC
+// secret
+// WG1SIa35Vabip6z32eSRUZupvSbcfPknAdl2wDUzyBc9m
 
 
 var tokenCache = new Map();
@@ -75,5 +83,12 @@ app.get('/fbgroup', function(req, res) {
 
 });
 
+app.get('/twitter', function(req, res) {
+    twitterService.search().then(function(data) {
+        res.send(data);
+});
 
-app.listen(80);
+});
+
+
+app.listen(PORT);
