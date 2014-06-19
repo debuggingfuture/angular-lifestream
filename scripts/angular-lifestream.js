@@ -82,7 +82,7 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
      $scope.angularBusyConfig = {
       promise:$scope.allLoadedPromise,
       message:'Loading it',
-      templateUrl:'loading.html'
+      templateUrl:'loading.html' //issue of this became relative url, better put in template cache
      }
 
 
