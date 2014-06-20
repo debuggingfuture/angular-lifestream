@@ -41,8 +41,7 @@ fetchTokenCbBySource["fbgroup"] = function() {
 
 
 var getFbgroupFeed = function(token, groupId) {
-    var endpoint = util.format('https://graph.facebook.com/%s/feed?access_token=%s', groupId, token);
-    console.log(endpoint);
+    var endpoint = util.format('https://graph.facebook.com/%s/feed?access_token=%s&limit=20', groupId, token);
     return request.bind(this, endpoint);
 };
 //give promises
@@ -84,8 +83,7 @@ app.get('/fbgroup', function(req, res) {
     getToken('fbgroup').then(function(token) {
         getFbgroupFeed(token, 614373621963841)(function(error, response, body) {
             if (!error && response.statusCode == 200) {
-                // console.log(body) 
-                res.jsonp(response);
+                res.jsonp(200,body);
             }
         });
 
