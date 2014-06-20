@@ -21,7 +21,7 @@
     "gulp-requirejs":"*",
     "gulp-angular-templatecache":"*",
     "requirejs":"*",
-        "gulp-rename":"*"
+    "gulp-rename":"*"
   },
   "bugs": {
     "url": "https://github.com/vincentlaucy/angular-lifestream/issues"

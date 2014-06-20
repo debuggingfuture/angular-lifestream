@@ -26,6 +26,9 @@ define(['angular', 'angular-route', 'angular-lifestream-service', 'angular-lifes
     .filter('serviceTemplateFilter', ['$templateCache',
       function($templateCache) {
         return function(item) {
+          if(item.template){
+            return item.template;
+          }
           var serviceTemplateName = item.config.service + '-' + 'template';
           if (!$templateCache.get(serviceTemplateName)) {
             return 'default-template';

@@ -5,7 +5,11 @@ var es6 = require('es6-shim');
 var request = require('request');
 var Q = require('q');
 var util = require('util');
+var _ = require('underscore');
 var config = require('./config.json');
+
+
+var qs = require('querystring');
 
 var twitterService = require('./services/twitter.js')(config["twitter_user"]);
 
@@ -16,6 +20,7 @@ app.get('/', function(req, res) {
 console.log(twitterService);
 
 var fbConfig = config["fbgroup"];
+
 
 
 // twitter
@@ -39,6 +44,29 @@ fetchTokenCbBySource["fbgroup"] = function() {
     return deferred.promise;
 }
 
+        // "keywords":["新界東北","政總","立法會"],
+var getFbSearchFeed = function(token,keywords) {
+    console.log('started');
+    console.log(keywords);
+    // keywords = keywords.map(function(keyword) {
+    //     return _.escape(keyword);
+    // }).join('%2C');
+    keywords = qs.escape(keywords);
+    // keywords = qs.escape(keywords.join(","));
+
+    var endpoint = util.format('https://graph.facebook.com/search?access_token=%s&q=%s&limit=20', token,keywords);
+    console.log(endpoint);
+    return request.bind(this,endpoint);
+
+  //   graph.facebook.com
+  // /search?
+  //   q={your-query}&
+  //   [type={object-type}](#searchtypes)
+};
+// %23
+// type=location&
+//     center=37.76,-122.427&
+//     distance=1000
 
 var getFbgroupFeed = function(token, groupId) {
     var endpoint = util.format('https://graph.facebook.com/%s/feed?access_token=%s&limit=20', groupId, token);
@@ -88,6 +116,20 @@ app.get('/fbgroup', function(req, res) {
         });
 
 
+    })
+
+});
+
+app.get('/fbsearch', function(req, res) {
+    getToken('fbgroup').then(function(token) {
+        console.log(config["fbsearch"]);
+        console.log(req.query);
+        getFbSearchFeed(token, req.query.keywords)(function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log(body);
+                res.jsonp(200,body);
+            }
+        });
     })
 
 });

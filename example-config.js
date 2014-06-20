@@ -11,12 +11,20 @@
          service: "twitter",
          user: "code4hk",
          jsonUrl: 'http://lifestream.dev.code4.hk/twitter'
-       }, {
-         service: "facebook_group",
-         user: 614373621963841,
-         jsonUrl: 'http://lifestream.dev.code4.hk/fbgroup'
+       }, 
+       // {
+       //   service: "facebook_group",
+       //   user: 614373621963841,
+       //   jsonUrl: 'http://lifestream.dev.code4.hk/fbgroup'
          
-       }]
+       // },
+       {
+        service:"facebook_search",
+        keywords:["新界東北"],
+        jsonUrl: 'http://lifestream.dev.code4.hk/fbsearch'
+       }
+
+       ]
      };
 
    }

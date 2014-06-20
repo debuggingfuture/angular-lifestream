@@ -2,8 +2,9 @@ define(
   ["angular",
     "services/twitter",
     "services/facebook_group",
+    "services/facebook_search",
     "services/github_org"
-  ], function(angular, Twitter, Facebook_Group, Github_Org) {
+  ], function(angular, Twitter, Facebook_Group, Facebook_Search,Github_Org) {
     //each feed as a ind services?
     var _services_const = arguments;
 
@@ -25,7 +26,7 @@ define(
       //alternative: don't use requirejs but simple build mechanism. as never use non-build version
       //or requirejs programatically  e.g. list of names + using arguments
       //same as file name
-      _service.feedsToInclude = ['twitter', 'facebook_group', 'github_org'];
+      _service.feedsToInclude = ['twitter', 'facebook_group','facebook_search', 'github_org'];
       var argOffset = 1;
 
       //TODO length of arguments check 
@@ -116,8 +117,7 @@ define(
           // Check whether the feed exists, if the feed is a function and if a
           // user has been filled in
           if (_service.feeds[config.service] &&
-            (typeof _service.feeds[config.service] === "function") &&
-            config.user) {
+            (typeof _service.feeds[config.service] === "function")) {
 
             //TODO decouple construction and feed.load()
             //construct only necessary objects once
