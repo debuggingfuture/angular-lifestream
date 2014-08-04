@@ -1,6 +1,6 @@
 <div class="lifestream container-fluid" ng-class="config.theme">
     <ul class="row" id="lifestream-container">
-        <li  ng-hide="!items.length" ng-repeat="item in items | limitTo: config.limit" class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
+        <li ng-hide="!items.length" ng-repeat="item in items |filter: item!==undefined| limitTo: config.limit " class="lifestream-item atom col-xs-10 col-sm-5 col-md-3"  ng-class="item | serviceClassFilter" 
         ng-include="item | serviceTemplateFilter"></li>
     </ul>
     <div class="row col-xs-10 " cg-busy="angularBusyConfig"></div>

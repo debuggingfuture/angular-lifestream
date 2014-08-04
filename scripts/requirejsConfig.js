@@ -54,7 +54,14 @@ var require = {
                 "angular"
             ],
             "exports": "busy"
-        }
+        },
+        "underscore":{
+            "deps":["underscore"]
+        },
+        "underscore.string":{
+            "deps":["underscore"]
+        },
+        
         // "angular-masonry":{
         //     "deps":[
         //     "angular","masonry"

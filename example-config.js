@@ -21,7 +21,7 @@
        {
         service:"facebook_search",
         keywords:["新界東北"],
-        jsonUrl: 'http://lifestream.dev.code4.hk/fbsearch'
+        jsonUrl: 'http://northeast.dev.code4.hk/fbsearch'
        }
 
        ]

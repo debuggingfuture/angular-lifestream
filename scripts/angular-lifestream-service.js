@@ -161,14 +161,9 @@ define(
       };
 
 
-      var _doJsonp = function(url, parsingCb, config) {
-          return $http.jsonp(url, {
+      var _doJsonp = function(url, parsingCb, config,params) {
 
-          "cache": true,
-          'data': {
-            '_maxage': 300 // cache for 5 minutes
-          }
-        }).then(
+          return $http.jsonp(url, params).then(
           function(data, status) {
             if (typeof parsingCb !== 'function') {
               console.log('no parsing function provided');
@@ -193,8 +188,27 @@ define(
         return _doJsonp(url, parsingCb, config);
       };
 
+    var _defaultParams = {
+          "cache": true,
+          'data': {
+            '_maxage': 300 // cache for 5 minutes
+          }
+        }
+
       _service.loadJsonUrl = function(url, parsingCb, config) {
-        return _doJsonp(url+'?callback=JSON_CALLBACK', parsingCb, config);
+        var params = {};
+        if(url.indexOf('?')>-1){
+          params = url.substr(url.indexOf('?')+1).split("&");
+        }
+ 
+//better use extend
+        for(var k in _defaultParams){
+            if(_defaultParams.hasOwnProperty(k)){
+                params = _defaultParams;
+            }
+          }
+
+        return _doJsonp(url+'?callback=JSON_CALLBACK', parsingCb, config,params);
       };
 
       return _service;

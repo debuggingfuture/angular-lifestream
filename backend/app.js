@@ -7,11 +7,10 @@ var Q = require('q');
 var util = require('util');
 var _ = require('underscore');
 var config = require('./config.json');
-
-
 var qs = require('querystring');
 
 var twitterService = require('./services/twitter.js')(config["twitter_user"]);
+var facebookService = require('./services/facebook.js')(config["fbgroup"]);
 
 app.get('/', function(req, res) {
     res.send('hello world');
@@ -19,9 +18,10 @@ app.get('/', function(req, res) {
 
 console.log(twitterService);
 
-var fbConfig = config["fbgroup"];
-
-
+var _services = {
+    'twitter_user':twitterService,
+    'fbgroup':facebookService
+}
 
 // twitter
 // token
@@ -34,10 +34,11 @@ var tokenCache = new Map();
 
 var fetchTokenCbBySource = {};
 
-fetchTokenCbBySource["fbgroup"] = function() {
+
+var fetchTokenCbBySource = function(source) {
     var deferred = Q.defer();
-    request(getTokenUrl(fbConfig), function(err, res, body) {
-        token = extractTokenFromResponse(body);
+    request(_services[source].getTokenUrl(config[source]), function(err,res,body) {
+        token = _services[source].getTokenCallback(body);
         tokenCache.set(token);
         deferred.resolve(token);
     });
@@ -77,22 +78,14 @@ var getFbgroupFeed = function(token, groupId) {
 
 var services = {};
 
-var getTokenUrl = function(configByFbgroup) {
-    return util.format('https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=client_credentials', configByFbgroup.app_id, configByFbgroup.app_secret);
-}
-
-var extractTokenFromResponse = function(res) {
-    return res.split('=')[1];
-};
-
 
 // console.log(promise);
-// var getUrl 
+// var getUrl x
 
 //return promise in obth cases
 var getToken = function(socialSource) {
     if (!tokenCache.has(socialSource)) {
-        return fetchTokenCbBySource[socialSource]();
+        return fetchTokenCbBySource(socialSource);
     } else {
         return Q.fcall(function() {
             return tokenCache.get(socialSource);
@@ -107,11 +100,15 @@ var getToken = function(socialSource) {
 // }
 
 app.get('/fbgroup', function(req, res) {
-
+    var isJsonp = req.query.jsonp;
     getToken('fbgroup').then(function(token) {
         getFbgroupFeed(token, 614373621963841)(function(error, response, body) {
             if (!error && response.statusCode == 200) {
-                res.jsonp(200,body);
+                if(isJsonp){
+                    res.jsonp(200,body);
+                }else{
+                    res.send(200,body);
+                }
             }
         });
 
@@ -126,7 +123,6 @@ app.get('/fbsearch', function(req, res) {
         console.log(req.query);
         getFbSearchFeed(token, req.query.keywords)(function(error, response, body) {
             if (!error && response.statusCode == 200) {
-                console.log(body);
                 res.jsonp(200,body);
             }
         });

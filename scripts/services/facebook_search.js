@@ -11,7 +11,6 @@ define(['services/abstract'], function(abstractServiceFeed) {
             return this._config.jsonUrl+"?q="+this._config.keywords.join(",");
       };
 
-
       var parseFbPost = function(post) {
             // '<a href="https://github.com/{{actor.login}}">{{actor.login}}</a> created repository ' +
             //             '<a href="http://github.com/' +

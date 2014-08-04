@@ -19,7 +19,9 @@
     "angular-animate": "*",
     "angular-route": "*",
     "angular-busy":"*",
-    "masonry": "*"
+    "masonry": "*",
+    "underscore":"*",
+    "underscore.string":"*"
   },
   "devDependencies": {},
   "resolutions": {
