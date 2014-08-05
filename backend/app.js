@@ -19,8 +19,8 @@ app.get('/', function(req, res) {
 console.log(twitterService);
 
 var _services = {
-    'twitter_user':twitterService,
-    'fbgroup':facebookService
+    'twitter_user': twitterService,
+    'fbgroup': facebookService
 }
 
 // twitter
@@ -37,7 +37,7 @@ var fetchTokenCbBySource = {};
 
 var fetchTokenCbBySource = function(source) {
     var deferred = Q.defer();
-    request(_services[source].getTokenUrl(config[source]), function(err,res,body) {
+    request(_services[source].getTokenUrl(config[source]), function(err, res, body) {
         token = _services[source].getTokenCallback(body);
         tokenCache.set(token);
         deferred.resolve(token);
@@ -45,8 +45,8 @@ var fetchTokenCbBySource = function(source) {
     return deferred.promise;
 }
 
-        // "keywords":["新界東北","政總","立法會"],
-var getFbSearchFeed = function(token,keywords) {
+// "keywords":["新界東北","政總","立法會"],
+var getFbSearchFeed = function(token, keywords) {
     console.log('started');
     console.log(keywords);
     // keywords = keywords.map(function(keyword) {
@@ -55,14 +55,14 @@ var getFbSearchFeed = function(token,keywords) {
     keywords = qs.escape(keywords);
     // keywords = qs.escape(keywords.join(","));
 
-    var endpoint = util.format('https://graph.facebook.com/search?access_token=%s&q=%s&limit=20', token,keywords);
+    var endpoint = util.format('https://graph.facebook.com/search?access_token=%s&q=%s&limit=20', token, keywords);
     console.log(endpoint);
-    return request.bind(this,endpoint);
+    return request.bind(this, endpoint);
 
-  //   graph.facebook.com
-  // /search?
-  //   q={your-query}&
-  //   [type={object-type}](#searchtypes)
+    //   graph.facebook.com
+    // /search?
+    //   q={your-query}&
+    //   [type={object-type}](#searchtypes)
 };
 // %23
 // type=location&
@@ -98,20 +98,19 @@ var getToken = function(socialSource) {
 //     console.log(body) // Print the google web page.
 //   }
 // }
+function _redirectbody(res, isJsonp, error, response, body) {
+    if (!error && response.statusCode == 200) {
+        if (isJsonp) {
+            res.jsonp(200, body);
+        } else {
+            res.send(200, body);
+        }
+    }
+};
 
 app.get('/fbgroup', function(req, res) {
-    var isJsonp = req.query.jsonp;
     getToken('fbgroup').then(function(token) {
-        getFbgroupFeed(token, 614373621963841)(function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                if(isJsonp){
-                    res.jsonp(200,body);
-                }else{
-                    res.send(200,body);
-                }
-            }
-        });
-
+        getFbgroupFeed(token, 614373621963841)(_redirectbody.bind(this,res, req.query.jsonp));
 
     })
 
@@ -121,11 +120,7 @@ app.get('/fbsearch', function(req, res) {
     getToken('fbgroup').then(function(token) {
         console.log(config["fbsearch"]);
         console.log(req.query);
-        getFbSearchFeed(token, req.query.keywords)(function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                res.jsonp(200,body);
-            }
-        });
+        getFbSearchFeed(token, req.query.keywords)(_redirectbody.bind(this,res, req.query.jsonp));
     })
 
 });
